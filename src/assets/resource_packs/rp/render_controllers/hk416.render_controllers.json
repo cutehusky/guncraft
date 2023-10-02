@@ -1,0 +1,133 @@
+{
+  "format_version": "1.10.0",
+  "render_controllers": {
+    "controller.render.player.hk416": {
+      "geometry": "Geometry.hk416",
+      "materials": [
+        { "*": "Material.default" }
+      ],
+      "textures": [ "Texture.hk416" ],
+      "is_hurt_color": { "r": 0.0, "g": 0.0, "b": 0.0, "a": 0.0 }
+    },
+    "controller.render.player.hk416.optic": {
+      "geometry": "Array.item_geo[v.optic]",
+      "materials": [
+        { "*": "Material.default" }
+      ],
+      "textures": [ "Array.item_texture[v.optic]" ],
+      "is_hurt_color": { "r": 0.0, "g": 0.0, "b": 0.0, "a": 0.0 },
+    	"arrays": {
+				"geometries": {
+					"Array.item_geo": [
+						"geometry.hk416.optic.standard"
+					]
+				},
+				"textures": {
+					"Array.item_texture": [
+						"texture.hk416.optic.standard"
+					]
+				}
+			} 
+    },
+    "controller.render.player.hk416.stock": {
+      "geometry": "Array.item_geo[v.stock - 1]",
+      "materials": [
+        { "*": "Material.default" }
+      ],
+      "textures": [ "Array.item_texture[v.stock - 1]" ],
+      "is_hurt_color": { "r": 0.0, "g": 0.0, "b": 0.0, "a": 0.0 },
+    	"arrays": {
+				"geometries": {
+					"Array.item_geo": [
+						"geometry.hk416.stock.standard"
+					]
+				},
+				"textures": {
+					"Array.item_texture": [
+						"texture.hk416.stock.standard"
+					]
+				}
+			} 
+    },
+    "controller.render.player.hk416.barrel": {
+      "geometry": "Array.item_geo[v.barrel]",
+      "materials": [
+        { "*": "Material.default" }
+      ],
+      "textures": [ "Array.item_texture[v.barrel]" ],
+      "is_hurt_color": { "r": 0.0, "g": 0.0, "b": 0.0, "a": 0.0 },
+    	"arrays": {
+				"geometries": {
+					"Array.item_geo": [
+						"geometry.hk416.barrel.standard"
+					]
+				},
+				"textures": {
+					"Array.item_texture": [
+						"texture.hk416.barrel.standard"
+					]
+				}
+			} 
+    },
+    "controller.render.player.hk416.mag": {
+      "geometry": "Array.item_geo[v.mag - 1]",
+      "materials": [
+        { "*": "Material.default" }
+      ],
+      "textures": [ "Array.item_texture[v.mag - 1]" ],
+      "is_hurt_color": { "r": 0.0, "g": 0.0, "b": 0.0, "a": 0.0 },
+    	"arrays": {
+				"geometries": {
+					"Array.item_geo": [
+						"geometry.hk416.mag.STANAG"
+					]
+				},
+				"textures": {
+					"Array.item_texture": [
+						"texture.hk416.mag.STANAG"
+					]
+				}
+			} 
+    },
+    "controller.render.player.hk416.mag2": {
+      "geometry": "Array.item_geo[v.mag2 - 1]",
+      "materials": [
+        { "*": "Material.default" }
+      ],
+      "textures": [ "Array.item_texture[v.mag2 - 1]" ],
+      "is_hurt_color": { "r": 0.0, "g": 0.0, "b": 0.0, "a": 0.0 },
+      "arrays": {
+				"geometries": {
+					"Array.item_geo": [
+						"geometry.hk416.mag2.STANAG"
+					]
+				},
+				"textures": {
+					"Array.item_texture": [
+						"texture.hk416.mag.STANAG"
+					]
+				}
+			} 
+    },
+    "controller.render.player.hk416.muzzle": {
+      "geometry": "Array.item_geo[v.muzzle - 1]",
+      "materials": [
+        { "*": "Material.default" }
+      ],
+      "textures": [ "Array.item_texture[v.muzzle - 1]" ],
+      "is_hurt_color": { "r": 0.0, "g": 0.0, "b": 0.0, "a": 0.0 },
+    	"arrays": {
+				"geometries": {
+					"Array.item_geo": [
+						"geometry.hk416.muzzle.standard"
+					]
+				},
+				"textures": {
+					"Array.item_texture": [
+						"texture.hk416.muzzle.standard"
+					]
+				}
+			} 
+    }
+  }
+}

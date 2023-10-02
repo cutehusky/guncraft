@@ -1,0 +1,232 @@
+{
+	"format_version": "1.10.0",
+	"animation_controllers": {
+		"controller.animation.hk416": {
+			"initial_state": "initial",
+			"states": {
+				"initial": {
+					"animations": [
+						{
+							"hk416.initial": "v.hk416"
+						}
+					],
+					"transitions": [
+						{
+							"hold": "q.all_animations_finished && v.hk416"
+						}
+					]
+				},
+				"hold": {
+					"animations": [
+						{
+							"hk416.hold": "v.hk416"
+						},
+						{
+							"hk416.aim.first_person": "v.is_first_person && v.hk416 && v.state == 1.0"
+						},
+						{
+							"hk416.aim.third_person": "v.is_third_person && v.hk416 && v.state == 1.0"
+						}
+					],
+					"transitions": [
+						{
+							"initial": "!v.hk416 || v.state == 0"
+						},
+						{
+							"fire": "v.fire"
+						},
+						{
+							"unloadMag2_reload": "v.state == 3.0 && v.mag2 == 0"
+						},
+						{
+							"mag2mag2_reload": "v.state == 3.0"
+						},
+						{
+							"unloadMag_reload": "v.state == 2.0 && v.mag2 == 0"
+						},
+						{
+							"loadMag_reload": "v.state == 2.0 && v.mag == 0"
+						},
+						{
+							"mag2mag_reload": "v.state == 2.0"
+						},
+						{
+							"sf": "v.state == 4.0"
+						},
+						{
+							"modify": "v.state == 6.0"
+						},
+						{
+							"sprint": "v.m && v.state != 1.0"
+						}
+					],
+					"blend_transition": 0.05,
+					"blend_via_shortest_path": true
+				},
+				"modify": {
+					"animations": [
+						{
+							"hk416.modify": "v.hk416"
+						}
+					],
+					"transitions": [
+						{
+							"initial": "!v.hk416 || v.state == 0"
+						},
+						{
+							"hold": "v.state != 6.0"
+						}
+					],
+					"blend_transition": 0.05,
+					"blend_via_shortest_path": true
+				},
+				"sf": {
+					"animations": [
+						{
+							"hk416.sf": "v.hk416"
+						}
+					],
+					"transitions": [
+						{
+							"initial": "!v.hk416 || v.state == 0"
+						},
+						{
+							"hold": "v.state != 4.0"
+						}
+					],
+					"blend_transition": 0.05,
+					"blend_via_shortest_path": true
+				},
+				"sprint": {
+					"animations": [
+						{
+							"hk416.sprint.third_person": "v.hk416 && v.is_third_person"
+						},
+						{
+							"hk416.sprint.first_person": "v.hk416 && v.is_first_person"
+						}
+					],
+					"transitions": [
+						{
+							"initial": "!v.hk416 || v.state == 0"
+						},
+						{
+							"fire": "v.fire"
+						},
+						{
+							"hold": "!v.m || v.state != 5.0"
+						}
+					],
+					"blend_transition": 0.05,
+					"blend_via_shortest_path": true
+				},
+				"fire": {
+					"animations": [
+						{
+							"hk416.fire": "v.hk416"
+						},
+						{
+							"hk416.aim.first_person": "v.is_first_person && v.hk416 && v.state == 1.0"
+						},
+						{
+							"hk416.aim.third_person": "v.is_third_person && v.hk416 && v.state == 1.0"
+						}
+					],
+					"transitions": [
+						{
+							"initial": "!v.hk416 || v.state == 0"
+						},
+						{
+							"hold": " !v.fire"
+						}
+					]
+				},
+				"mag2mag_reload": {
+					"animations": [
+						{
+							"hk416.reload.mag2mag": "v.hk416"
+						}
+					],
+					"transitions": [
+						{
+							"initial": "!v.hk416 || v.state == 0"
+						},
+						{
+							"hold": "v.state != 2.0"
+						}
+					],
+					"blend_transition": 0.0,
+					"blend_via_shortest_path": true
+				},
+				"mag2mag2_reload": {
+					"animations": [
+						{
+							"hk416.reload.mag2mag2": "v.hk416"
+						}
+					],
+					"transitions": [
+						{
+							"initial": "!v.hk416 || v.state == 0"
+						},
+						{
+							"hold": "v.state != 3"
+						}
+					],
+					"blend_transition": 0.0,
+					"blend_via_shortest_path": true
+				},
+				"loadMag_reload": {
+					"animations": [
+						{
+							"hk416.reload.loadMag": "v.hk416"
+						}
+					],
+					"transitions": [
+						{
+							"initial": "!v.hk416 || v.state == 0"
+						},
+						{
+							"hold": "v.state != 2"
+						}
+					],
+					"blend_transition": 0.0,
+					"blend_via_shortest_path": true
+				},
+				"unloadMag_reload": {
+					"animations": [
+						{
+							"hk416.reload.unloadMag": "v.hk416"
+						}
+					],
+					"transitions": [
+						{
+							"initial": "!v.hk416 || v.state == 0"
+						},
+						{
+							"hold": "v.state != 2"
+						}
+					],
+					"blend_transition": 0.0,
+					"blend_via_shortest_path": true
+				},
+				"unloadMag2_reload": {
+					"animations": [
+						{
+							"hk416.reload.unloadMag2": "v.hk416"
+						}
+					],
+					"transitions": [
+						{
+							"initial": "!v.hk416 || v.state == 0"
+						},
+						{
+							"hold": "v.state != 3"
+						}
+					],
+					"blend_transition": 0.0,
+					"blend_via_shortest_path": true
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,59 @@
+{
+	"info": {
+		"name": "Guncraft",
+		"author": "cutehusky",
+		"version": "1.0",
+		"description": "",
+		"clientOnly": false
+	},
+	"api": "CoreEngine",
+	"resources": [
+		{
+			"path": "src/assets/mod_resource",
+			"type": "resource_directory"
+		},
+		{
+			"path": "src/assets/gui",
+			"type": "gui"
+		},
+		{
+			"path": "src/assets/resource_packs/*",
+			"type": "minecraft_resource_pack"
+		},
+		{
+			"path": "src/assets/behavior_packs/*",
+			"type": "minecraft_behavior_pack"
+		}
+	],
+	"sources": [
+		{
+			"source": "src/dev",
+			"target": "main.js",
+			"type": "main",
+			"language": "typescript"
+		},
+		{
+			"source": "src/launcher.js",
+			"type": "launcher",
+			"language": "javascript"
+		},
+		{
+			"source": "src/lib/*",
+			"type": "library",
+			"language": "javascript"
+		},
+		{
+			"source": "src/preloader",
+			"target": "preloader.js",
+			"type": "preloader",
+			"language": "typescript"
+		}
+	],
+	"compile": [],
+	"additional": [
+		{
+			"source": "src/assets/root/*",
+			"targetDir": "."
+		}
+	]
+}

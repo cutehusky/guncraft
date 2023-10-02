@@ -1,0 +1,62 @@
+{
+	"guncraft.sf": {
+		"min_distance": 999999,
+		"category": "music",
+		"sounds": [
+			{
+				"name": "sounds/gunSound/sf",
+				"load_on_low_memory": true
+					}
+				]
+	},
+	"guncraft.m4a1.fire": {
+		"min_distance": 999999,
+		"category": "music",
+		"sounds": [
+			{
+				"name": "sounds/gunSound/m4a1/fire",
+				"load_on_low_memory": true
+				}
+			]
+	},
+	"guncraft.m4a1.reload_1": {
+		"min_distance": 999999,
+		"category": "music",
+		"sounds": [
+			{
+				"name": "sounds/gunSound/m4a1/reload_1",
+				"load_on_low_memory": true
+				}
+			]
+	},
+	"guncraft.m4a1.reload_2": {
+		"min_distance": 999999,
+		"category": "music",
+		"sounds": [
+			{
+				"name": "sounds/gunSound/m4a1/reload_2",
+				"load_on_low_memory": true
+				}
+			]
+	},
+	"guncraft.m4a1.fire.silencer": {
+		"min_distance": 999999,
+		"category": "music",
+		"sounds": [
+			{
+				"name": "sounds/gunSound/m4a1/fire.silencer",
+				"load_on_low_memory": true
+				}
+			]
+	},
+	"empty": {
+		"min_distance": 999999,
+		"category": "music",
+		"sounds": [
+			{
+				"name": "sounds/gunSound/empty",
+				"load_on_low_memory": true
+				}
+			]
+	}
+}

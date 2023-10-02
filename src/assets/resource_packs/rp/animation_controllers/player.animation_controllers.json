@@ -1,0 +1,40 @@
+{
+	"format_version": "1.10.0",
+	"animation_controllers": {
+		"controller.animation.player.holding_any_firearm": {
+			"initial_state": "first_person",
+			"states": {
+				"first_person": {
+					"animations": [
+						{
+							"first_person_walk": "variable.bob_animation"
+						},
+						"first_person.initial",
+						"hk416"
+					],
+					"transitions": [
+						{
+							"third_person": "v.is_third_person || v.is_paperdoll"
+						}
+					]
+				},
+				"third_person": {
+					"animations": [
+						"third_person.initial",
+						"move.legs",
+						"cape",
+						{
+							"third_person.sneak": "v.s && !v.w"
+						},
+						"hk416"
+					],
+					"transitions": [
+						{
+							"first_person": "v.is_first_person"
+						}
+					]
+				}
+			}
+		}
+	}
+}

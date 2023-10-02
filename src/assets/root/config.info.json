@@ -1,0 +1,13 @@
+{
+	"properties": {
+		"UI_scale": {
+			"name": {
+				"en": "Button scale",
+				"zh": "按钮大小"
+			},
+			"type": "SeekBar",
+			"min": 1,
+			"max": 15
+		}
+	}
+}

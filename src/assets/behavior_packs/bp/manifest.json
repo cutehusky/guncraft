@@ -1,0 +1,24 @@
+{
+    "format_version": 2,
+    "header": {
+        "description": "behavior pack for Guncraft",
+        "name": "Guncraft",
+        "uuid": "afb7ca8a-0260-48ca-bbfd-76a6ed68a7c8",
+        "version": [ 0, 0, 1 ],
+        "min_engine_version": [ 1, 14, 0 ]
+    },
+    "modules": [
+        {
+            "description": "behavior pack for Guncraft",
+            "type": "data",
+            "uuid": "241cdcca-215b-4235-971b-0a6bee8704ca",
+            "version": [0, 0, 1]
+        }
+    ],
+    "dependencies": [
+        {
+            "uuid": "2fcea787-97fc-44ae-a847-43a75621a3af",
+            "version": [0, 0, 1]
+        }
+    ]
+}

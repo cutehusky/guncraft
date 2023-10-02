@@ -1,0 +1,92 @@
+{
+  "format_version": "1.13.0",
+  "minecraft:entity": {
+    "description": {
+      "identifier": "minecraft:item",
+      "is_spawnable": true,
+      "is_summonable": false,
+      "is_experimental": false
+    },
+
+    "component_groups": {
+      "drop:gun": {
+        "minecraft:addrider": {
+          "entity_type": "drop:gun"
+        }
+      },
+      "minecraft:player_item": {
+        "minecraft:is_charged": {}
+      }
+    },
+
+    "components": {
+      "minecraft:tick_world": {
+      },
+      "minecraft:hurt_on_condition": {
+        "damage_conditions": [
+          {
+            "filters": { "test": "in_lava", "subject": "self", "operator": "==", "value": true },
+            "cause": "lava",
+            "damage_per_tick": 4
+          }
+        ]
+      },
+      "minecraft:rideable": {
+        "seat_count": 1,
+        "family_types": [ "item" ],
+        "seats": {
+          "position": [ 0.0, 0.0, 0.0 ]
+        }
+      },
+      "minecraft:physics": {},
+      "minecraft:collision_box": {
+        "width": 0.0,
+        "height": 0.0
+      },
+      "minecraft:environment_sensor": {
+        "triggers": [
+          {
+            "filters": {
+              "all_of": [
+              	{
+              	    "any_of":[
+                    { "test": "has_tag", "subject": "self", "operator": "==", "value": "item.hk416" }
+                    ]
+              	},
+                { "test": "rider_count", "subject": "self", "operator": "<", "value": 1 }
+              ]
+            },
+            "event": "drop:gun"
+          }
+        ]
+      },
+      "minecraft:is_hidden_when_invisible": {},
+      "minecraft:pushable": {
+        "is_pushable": false,
+        "is_pushable_by_piston": true
+      }
+    },
+
+    "events": {
+      "drop:gun": {
+        "add": {
+          "component_groups": [ "drop:gun" ]
+        }
+      },
+      "minecraft:entity_spawned": {
+        "sequence": [
+          {
+            "filters": {
+              "all_of": [
+                { "test": "is_family", "subject": "other", "operator": "==", "value": "player" }
+              ]
+            },
+            "add": {
+              "component_groups": [ "minecraft:player_item" ]
+            }
+          }
+        ]
+      }
+    }
+  }
+}

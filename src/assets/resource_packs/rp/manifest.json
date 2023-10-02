@@ -1,0 +1,18 @@
+{
+    "format_version": 2,
+    "header": {
+        "description": "resource pack for Guncraft",
+        "name": "Guncraft",
+        "uuid": "2fcea787-97fc-44ae-a847-43a75621a3af",
+        "version": [0, 0, 1],
+        "min_engine_version": [ 1, 14, 0 ]
+    },
+    "modules": [
+        {
+            "description": "resource pack for Guncraft",
+            "type": "resources",
+            "uuid": "1aeb07a7-23fb-437a-a9c7-a6ec12f4b20f",
+            "version": [0, 0, 1]
+        }
+    ]
+}

@@ -1,0 +1,70 @@
+{
+	"format_version": "1.10.0",
+	"minecraft:client_entity": {
+		"description": {
+			"identifier": "drop:gun",
+			"materials": {
+				"default": "entity_alphatest",
+				"transparent": "entity_alphablend",
+				"cape": "entity_alphatest",
+				"animated": "player_animated",
+				"light": "entity_emissive_alpha_one_sided"
+			},
+			"textures": {
+				"hk416": "textures/assaultrifle/hk416/main",
+				"hk416.mag.STANAG": "textures/attachments/mag/STANAG",
+				"hk416.muzzle.standard": "textures/attachments/muzzle/hk416_standard",
+				"hk416.stock.standard": "textures/attachments/stock/hk416_standard",
+				"hk416.optic.standard": "textures/attachments/optic/hk416_standard",
+				"hk416.barrel.standard": "textures/attachments/barrel/hk416_standard"
+			},
+			"geometry": {
+			    "hk416": "geometry.assaultrifle.hk416",
+				"hk416.mag.STANAG": "geometry.mag.hk416.STANAG",
+				"hk416.stock.standard": "geometry.stock.hk416.standard",
+				"hk416.optic.standard": "geometry.optic.hk416.standard",
+				"hk416.muzzle.standard": "geometry.muzzle.hk416.standard",
+				"hk416.barrel.standard": "geometry.barrel.hk416.standard"
+			},
+			"scripts": {
+				"scale": "0.9375",
+				"pre_animation": [
+					"v.variant = q.variant;",
+					"v.hk416 = v.variant == 1.0;",
+					"v.mag = math.mod(math.floor(q.skin_id / 10),10);",
+					"v.laser = math.mod(math.floor(q.skin_id / 10000000),10);",
+					"v.barrel = math.mod(q.skin_id, 10);",
+					"v.reargrip = math.mod(math.floor(q.skin_id / 100000000),10);",
+					"v.optic = math.mod(math.floor(q.skin_id / 10000),10);",
+					"v.stock = math.mod(math.floor(q.skin_id / 1000000),10);",
+					"v.muzzle = math.mod(math.floor(q.skin_id / 100000),10);",
+					"v.underbarrel = math.mod(math.floor(q.skin_id / 1000),10);"
+				],
+				"animate": ["root"]
+			},
+			"animations": {
+				"root": "animation.drop.initial"
+			},
+			"render_controllers":  [
+				{
+					"controller.render.player.hk416.mag": " v.hk416 && v.mag != 0"
+				},
+				{
+					"controller.render.player.hk416.muzzle": "v.hk416 && v.muzzle != 0"
+				},
+				{
+					"controller.render.player.hk416.barrel": "v.hk416"
+				},
+				{
+					"controller.render.player.hk416": "v.hk416"
+				},
+				{
+					"controller.render.player.hk416.optic": "v.hk416"
+				},
+				{
+					"controller.render.player.hk416.stock": "v.hk416 && v.stock != 0"
+				}
+			]
+		}
+	}
+}

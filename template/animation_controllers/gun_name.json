@@ -1,0 +1,310 @@
+{
+	"format_version": "1.10.0",
+	"animation_controllers": {
+		"controller.animation.gun_name": {
+			"initial_state": "initial",
+			"states": {
+				"initial": {
+					"animations": [
+						{
+							"gun_name.initial": "v.gun_name"
+						}
+					],
+					"transitions": [
+						{
+							"hold": "q.all_animations_finished && v.gun_name"
+						}
+					]
+				},
+				"hold": {
+					"animations": [
+						{
+							"gun_name.hold": "v.gun_name"
+						},
+						{
+							"gun_name.aim.first_person": "v.is_first_person && v.gun_name && v.state == 1.0"
+						},
+						{
+							"gun_name.aim.third_person": "v.is_third_person && v.gun_name && v.state == 1.0"
+						}
+					],
+					"transitions": [
+						{
+							"initial": "!v.gun_name || v.state == 0"
+						},
+						{
+							"fire": "v.fire"
+						},
+						{
+							"link2mag_reload": "v.state == 10"
+						},
+						{
+							"link2mag2_reload": "v.state == 11"
+						},
+						{
+							"mag2link_reload": "v.state == 12"
+						},
+						{
+							"mag2link2_reload": "v.state == 13"
+						},
+						{
+							"unloadLink2_reload": "v.state == 15.0 && v.mag2 == 0"
+						},
+						{
+							"link2link2_reload": "v.state == 15"
+						},
+						{
+							"unloadLink_reload": "v.state == 14.0 && v.mag2 == 0"
+						},
+						{
+							"link2link_reload": "v.state == 14"
+						},
+						{
+							"unloadMag2_reload": "v.state == 3.0 && v.mag2 == 0"
+						},
+						{
+							"loadLink_reload": "v.state == 3.0 && v.mag == 0"
+						},
+						{
+							"mag2mag2_reload": "v.state == 3.0"
+						},
+						{
+							"unloadMag_reload": "v.state == 2.0 && v.mag2 == 0"
+						},
+						{
+							"loadMag_reload": "v.state == 2.0 && v.mag == 0"
+						},
+						{
+							"mag2mag_reload": "v.state == 2.0"
+						},
+						{
+							"sf": "v.state == 4.0"
+						},
+						{
+							"modify": "v.state == 6.0"
+						},
+						{
+							"sprint": "v.m && v.state != 1.0"
+						}
+					],
+					"blend_transition": 0.05,
+					"blend_via_shortest_path": true
+				},
+				"modify": {
+					"animations": [
+						{
+							"gun_name.modify": "v.gun_name"
+						}
+					],
+					"transitions": [
+						{
+							"initial": "!v.gun_name || v.state == 0"
+						},
+						{
+							"hold": "v.state != 6.0"
+						}
+					],
+					"blend_transition": 0.05,
+					"blend_via_shortest_path": true
+				},
+				"sf": {
+					"animations": [
+						{
+							"gun_name.sf": "v.gun_name"
+						}
+					],
+					"transitions": [
+						{
+							"initial": "!v.gun_name || v.state == 0"
+						},
+						{
+							"hold": "v.state != 4.0"
+						}
+					],
+					"blend_transition": 0.05,
+					"blend_via_shortest_path": true
+				},
+				"sprint": {
+					"animations": [
+						{
+							"gun_name.sprint.third_person": "v.gun_name && v.is_third_person"
+						},
+						{
+							"gun_name.sprint.first_person": "v.gun_name && v.is_first_person"
+						}
+					],
+					"transitions": [
+						{
+							"initial": "!v.gun_name || v.state == 0"
+						},
+						{
+							"fire": "v.fire"
+						},
+						{
+							"hold": "!v.m || v.state != 5.0"
+						}
+					],
+					"blend_transition": 0.05,
+					"blend_via_shortest_path": true
+				},
+				"fire": {
+					"animations": [
+						{
+							"gun_name.fire": "v.gun_name"
+						},
+						{
+							"gun_name.aim.first_person": "v.is_first_person && v.gun_name && v.state == 1.0"
+						},
+						{
+							"gun_name.aim.third_person": "v.is_third_person && v.gun_name && v.state == 1.0"
+						}
+					],
+					"transitions": [
+						{
+							"initial": "!v.gun_name || v.state == 0"
+						},
+						{
+							"hold": " !v.fire"
+						}
+					]
+				},
+				"mag2mag_reload": {
+					"animations": [
+						{
+							"gun_name.reload.fast": "v.gun_name"
+						}
+					],
+					"transitions": [
+						{
+							"initial": "!v.gun_name || v.state == 0"
+						},
+						{
+							"hold": "v.state != 2.0"
+						}
+					],
+					"blend_transition": 0.0,
+					"blend_via_shortest_path": true
+				},
+				"mag2mag2_reload": {
+					"animations": [
+						{
+							"gun_name.reload.fast2": "v.gun_name"
+						}
+					],
+					"transitions": [
+						{
+							"initial": "!v.gun_name || v.state == 0"
+						},
+						{
+							"hold": "v.state != 3"
+						}
+					],
+					"blend_transition": 0.0,
+					"blend_via_shortest_path": true
+				},
+				"link2mag_reload": {
+					"animations": [
+						{
+							"gun_name.reload.normal": "v.gun_name"
+						}
+					],
+					"transitions": [
+						{
+							"initial": "!v.gun_name || v.state == 0"
+						},
+						{
+							"hold": "v.state != 10.0"
+						}
+					],
+					"blend_transition": 0.0,
+					"blend_via_shortest_path": true
+				},
+				"link2mag2_reload": {
+					"animations": [
+						{
+							"gun_name.reload.normal2": "v.gun_name"
+						}
+					],
+					"transitions": [
+						{
+							"initial": "!v.gun_name || v.state == 0"
+						},
+						{
+							"hold": "v.state != 11.0"
+						}
+					],
+					"blend_transition": 0.0,
+					"blend_via_shortest_path": true
+				},
+				"loadMag_reload": {
+					"animations": [
+						{
+							"gun_name.reload.first": "v.gun_name"
+						}
+					],
+					"transitions": [
+						{
+							"initial": "!v.gun_name || v.state == 0"
+						},
+						{
+							"hold": "v.state != 2"
+						}
+					],
+					"blend_transition": 0.0,
+					"blend_via_shortest_path": true
+				},
+				"loadLink_reload": {
+					"animations": [
+						{
+							"gun_name.reload.first2": "v.gun_name"
+						}
+					],
+					"transitions": [
+						{
+							"initial": "!v.gun_name || v.state == 0"
+						},
+						{
+							"hold": "v.state != 3"
+						}
+					],
+					"blend_transition": 0.0,
+					"blend_via_shortest_path": true
+				},
+				"unloadMag_reload": {
+					"animations": [
+						{
+							"gun_name.reload.null": "v.gun_name"
+						}
+					],
+					"transitions": [
+						{
+							"initial": "!v.gun_name || v.state == 0"
+						},
+						{
+							"hold": "v.state != 2"
+						}
+					],
+					"blend_transition": 0.0,
+					"blend_via_shortest_path": true
+				},
+				"unloadMag2_reload": {
+					"animations": [
+						{
+							"gun_name.reload.null2": "v.gun_name"
+						}
+					],
+					"transitions": [
+						{
+							"initial": "!v.gun_name || v.state == 0"
+						},
+						{
+							"hold": "v.state != 3"
+						}
+					],
+					"blend_transition": 0.0,
+					"blend_via_shortest_path": true
+				}
+			}
+		}
+	}
+}

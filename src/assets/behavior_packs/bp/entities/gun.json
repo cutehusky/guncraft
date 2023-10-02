@@ -1,0 +1,93 @@
+{
+  "format_version": "1.13.0",
+  "minecraft:entity": {
+    "description": {
+      "identifier": "drop:gun",
+      "runtime_identifier": "drop:gun",
+      "is_summonable": false,
+      "is_spawnable": false,
+      "is_experimental": false
+    },
+    "component_groups": {
+      "drop:hk416": {
+        "minecraft:variant": { "value": 1.0 }
+      },
+      "drop:despawn_item": {
+        "minecraft:despawn": {}
+      }
+    },
+    "components": {
+      "minecraft:variant": {
+        "value": 0
+      },
+      "minecraft:scale": {
+      	"value": 1.0 
+      },
+      "minecraft:type_family": {
+        "family": [ "item" ]
+      },
+      "minecraft:nameable": {},
+      "minecraft:damage_sensor": {
+        "triggers": {
+          "cause": "all",
+          "deals_damage": false
+        }
+      },
+      "minecraft:hurt_on_condition": {
+        "damage_conditions": [
+          {
+            "filters": {
+              "test": "in_lava",
+              "subject": "self",
+              "operator": "==",
+              "value": true
+            },
+            "cause": "lava",
+            "damage_per_tick": 4
+          }
+        ]
+      },
+      "minecraft:collision_box": {
+        "width": 0.0,
+        "height": 0.0
+      },
+      "minecraft:environment_sensor": {
+        "triggers": [
+          {
+            "filters": {
+              "all_of": [
+                { "test": "is_riding", "operator": "==", "subject": "self", "value": true },
+                { "test": "has_tag", "operator": "==", "subject": "other", "value": "item.hk416" }
+              ]
+            },
+            "event": "drop:hk416"
+          },
+          {
+            "filters": {
+              "all_of": [
+                { "test": "is_riding", "operator": "==", "subject": "self", "value": false }
+              ]
+            },
+            "event": "drop:despawn_item"
+          }
+        ]
+      }
+    },
+    "events": {
+      "drop:hk416": {
+        "add": {
+          "component_groups": [
+            "drop:hk416"
+          ]
+        }
+      },
+      "drop:despawn_item": {
+        "add": {
+          "component_groups": [
+            "drop:despawn_item"
+          ]
+        }
+      }
+    }
+  }
+}

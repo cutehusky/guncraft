@@ -1,0 +1,306 @@
+{
+	"format_version": "1.8.0",
+	"geometry.player.armor1:geometry.player.armor.base": {
+		"bones": [{
+				"name": "head",
+				"inflate": 1.0
+			},
+			{
+				"name": "hat",
+				"inflate": 1.5,
+				"neverRender": false
+			},
+			{
+				"name": "body",
+				"inflate": 1.01
+			},
+			{
+				"name": "_body",
+				"inflate": 1.01
+			},
+			{
+				"name": "rightArm",
+				"inflate": 1.0
+			},
+			{
+				"name": "leftArm",
+				"inflate": 1.0
+			},
+			{
+				"name": "rightLeg",
+				"inflate": 1.0
+			},
+			{
+				"name": "leftLeg",
+				"inflate": 1.0
+			},
+			{
+				"name": "_rightArm",
+				"inflate": 1.0
+			},
+			{
+				"name": "_leftArm",
+				"inflate": 1.0
+			},
+			{
+				"name": "_rightLeg",
+				"inflate": 1.0
+			},
+			{
+				"name": "_leftLeg",
+				"inflate": 1.0
+			},
+			{
+				"name": "__rightArm",
+				"inflate": 1.0
+			},
+			{
+				"name": "__leftArm",
+				"inflate": 1.0
+			},
+			{
+				"name": "__rightLeg",
+				"inflate": 1.0
+			},
+			{
+				"name": "__leftLeg",
+				"inflate": 1.0
+			}
+		]
+	},
+	"geometry.player.armor.helmet:geometry.player.armor1": {
+		"bones": [{
+				"name": "body",
+				"reset": true
+			},
+			{
+				"name": "_body",
+				"reset": true
+			},
+			{
+				"name": "rightArm",
+				"reset": true
+			},
+			{
+				"name": "leftArm",
+				"reset": true
+			},
+			{
+				"name": "rightLeg",
+				"reset": true
+			},
+			{
+				"name": "leftLeg",
+				"reset": true
+			},
+			{
+				"name": "_rightArm",
+				"reset": true
+			},
+			{
+				"name": "_leftArm",
+				"reset": true
+			},
+			{
+				"name": "_rightLeg",
+				"reset": true
+			},
+			{
+				"name": "_leftLeg",
+				"reset": true
+			},
+			{
+				"name": "__rightArm",
+				"reset": true
+			},
+			{
+				"name": "__leftArm",
+				"reset": true
+			},
+			{
+				"name": "__rightLeg",
+				"reset": true
+			},
+			{
+				"name": "__leftLeg",
+				"reset": true
+			}
+		]
+	},
+	"geometry.player.armor.chestplate:geometry.player.armor1": {
+		"bones": [{
+				"name": "head",
+				"reset": true
+			},
+			{
+				"name": "hat",
+				"reset": true
+			},
+			{
+				"name": "rightLeg",
+				"reset": true
+			},
+			{
+				"name": "leftLeg",
+				"reset": true
+			},
+			{
+				"name": "_rightLeg",
+				"reset": true
+			},
+			{
+				"name": "_leftLeg",
+				"reset": true
+			},
+			{
+				"name": "__rightLeg",
+				"reset": true
+			},
+			{
+				"name": "__leftLeg",
+				"reset": true
+			}
+		]
+	},
+	"geometry.player.armor.boots:geometry.player.armor1": {
+		"bones": [{
+				"name": "head",
+				"reset": true
+			},
+			{
+				"name": "hat",
+				"reset": true
+			},
+			{
+				"name": "body",
+				"reset": true
+			},
+			{
+				"name": "_body",
+				"reset": true
+			},
+			{
+				"name": "rightArm",
+				"reset": true
+			},
+			{
+				"name": "leftArm",
+				"reset": true
+			},
+			{
+				"name": "_rightArm",
+				"reset": true
+			},
+			{
+				"name": "_leftArm",
+				"reset": true
+			},
+			{
+				"name": "__rightArm",
+				"reset": true
+			},
+			{
+				"name": "__leftArm",
+				"reset": true
+			}
+		]
+	},
+	"geometry.player.armor2:geometry.player.armor.base": {
+		"bones": [{
+				"name": "head",
+				"inflate": 0.5
+			},
+			{
+				"name": "body",
+				"inflate": 0.5
+			},
+			{
+				"name": "rightArm",
+				"inflate": 0.5
+			},
+			{
+				"name": "leftArm",
+				"inflate": 0.5
+			},
+			{
+				"name": "rightLeg",
+				"inflate": 0.5
+			},
+			{
+				"name": "leftLeg",
+				"inflate": 0.5
+			},
+			{
+				"name": "_body",
+				"inflate": 0.5
+			},
+			{
+				"name": "_rightArm",
+				"inflate": 0.5
+			},
+			{
+				"name": "_leftArm",
+				"inflate": 0.5
+			},
+			{
+				"name": "_rightLeg",
+				"inflate": 0.5
+			},
+			{
+				"name": "_leftLeg",
+				"inflate": 0.5
+			},
+			{
+				"name": "__rightArm",
+				"inflate": 0.5
+			},
+			{
+				"name": "__leftArm",
+				"inflate": 0.5
+			},
+			{
+				"name": "__rightLeg",
+				"inflate": 0.5
+			},
+			{
+				"name": "__leftLeg",
+				"inflate": 0.5
+			}
+		]
+	},
+	"geometry.player.armor.leggings:geometry.player.armor2": {
+		"bones": [{
+				"name": "head",
+				"reset": true
+			},
+			{
+				"name": "hat",
+				"reset": true
+			},
+			{
+				"name": "rightArm",
+				"reset": true
+			},
+			{
+				"name": "leftArm",
+				"reset": true
+			},
+			{
+				"name": "_rightArm",
+				"reset": true
+			},
+			{
+				"name": "_leftArm",
+				"reset": true
+			},
+			{
+				"name": "__rightArm",
+				"reset": true
+			},
+			{
+				"name": "__leftArm",
+				"reset": true
+			}
+		]
+	}
+}

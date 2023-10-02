@@ -1,0 +1,72 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+	    "animation.third_person.sneak": {
+			"loop": true,
+			"bones": {
+				"waist": {
+					"position": [0, -4, 0]
+				},
+				"rightLeg": {
+					"rotation": [-80, 0, 0],
+					"position": [0, -3, 0.95]
+				},
+				"_rightLeg": {
+					"rotation": [77.5, 0, 0],
+					"position": [0, -1, 0],
+					"scale": [1, 1.1025, 1]
+				},
+				"rightPants": {
+					"position": [0, 1, 0],
+					"scale": [1, 1.5, 1]
+				},
+				"leftLeg": {
+					"position": [0, -4, 0]
+				},
+				"_leftLeg": {
+					"rotation": [82.5, 0, 0],
+					"position": [0, 0, -1]
+				},
+				"leftPants": {
+					"position": [0, 0, 0],
+					"scale": [1, 1.1, 1]
+				}
+			}
+		},
+	    "animation.first_person.initial": {
+			"loop": true,
+			"override_previous_animation": true,
+			"bones": {
+			    "root": {
+					"rotation": ["(math.cos(query.life_time * 100.0) * 0.200) + 0.200", 180, 0],
+					"position": [-3, 2.5, -1.5]
+				}
+			}
+		},
+		"animation.third_person.initial": {
+			"loop": true,
+			"bones": {
+				"root": {
+					"rotation": [0, "(q.head_y_rotation(0) - q.body_y_rotation)", 0]
+				},	
+				"rightArm_": {
+					"rotation" : ["q.target_x_rotation", 0.0, 0.0 ]
+				},
+				"leftArm_": {
+					"rotation" : ["q.target_x_rotation", 0.0, 0.0 ]
+				},
+				"head_": {
+					"rotation" : [ "query.target_x_rotation", "query.target_y_rotation", 0.0 ]
+				}
+			}
+		},
+		"animation.player.reset": {
+			"loop": true,
+			"bones": {
+				"gun": {
+					"scale": 0
+				}
+			}
+		}
+	}
+}
