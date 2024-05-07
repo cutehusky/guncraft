@@ -20,7 +20,6 @@ TileEntity.registerPrototype(BlockID["magReloader"], {
 		return "mag_reload_ui";
 	},
 	getScreenByName: function (screenName: string): com.zhekasmirnov.innercore.api.mod.ui.window.UIWindowStandard {
-		alert(screenName);
 		return magReloadUI;
 	},
 	init: function (): void {

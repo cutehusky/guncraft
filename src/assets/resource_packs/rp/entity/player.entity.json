@@ -45,7 +45,10 @@
 					"v.barrel = 0;",
 					"v.reargrip = 0;",
 					"v.muzzle = 0;",
-					"v.underbarrel = 0;"
+					"v.underbarrel = 0;",
+					"v.state = 0;",
+					"v.fire = 0;",
+					"v.mag2 = 0;"
 				],
 				"pre_animation": [
 					"v.is_third_person = (!v.is_first_person && !v.map_face_icon && !v.is_paperdoll);",
@@ -62,10 +65,7 @@
 					"v.m = q.is_sprinting;",
 					"v.r = q.is_powered;",
 					"v.hk416 = q.get_equipped_item_name(0) == 'item_hk416';",
-					"v.fire = math.mod(math.floor(q.skin_id / 10000),10) == 1.0;",
-					"v.state = math.mod(math.floor(q.skin_id / 100),100);",
 					"v.holding_any_firearm = (v.state != 0.0);",
-					"v.mag2 = math.mod(q.skin_id, 100);",
 					"v.leg_layer_visible = 1.0;",
 					"v.boot_layer_visible = 1.0;",
 					"v.chest_layer_visible = 1.0;",
