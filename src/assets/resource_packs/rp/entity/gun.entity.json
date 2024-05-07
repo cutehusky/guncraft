@@ -19,7 +19,7 @@
 				"hk416.barrel.standard": "textures/attachments/barrel/hk416_standard"
 			},
 			"geometry": {
-			    "hk416": "geometry.assaultrifle.hk416",
+				"hk416": "geometry.assaultrifle.hk416",
 				"hk416.mag.STANAG": "geometry.mag.hk416.STANAG",
 				"hk416.stock.standard": "geometry.stock.hk416.standard",
 				"hk416.optic.standard": "geometry.optic.hk416.standard",
@@ -28,24 +28,28 @@
 			},
 			"scripts": {
 				"scale": "0.9375",
+				"initialize": [
+					"v.mag = 0;",
+					"v.laser = 0;",
+					"v.barrel = 0;",
+					"v.reargrip = 0;",
+					"v.optic = 0;",
+					"v.stock = 0;",
+					"v.muzzle = 0;",
+					"v.underbarrel = 0;"
+				],
 				"pre_animation": [
 					"v.variant = q.variant;",
-					"v.hk416 = v.variant == 1.0;",
-					"v.mag = math.mod(math.floor(q.skin_id / 10),10);",
-					"v.laser = math.mod(math.floor(q.skin_id / 10000000),10);",
-					"v.barrel = math.mod(q.skin_id, 10);",
-					"v.reargrip = math.mod(math.floor(q.skin_id / 100000000),10);",
-					"v.optic = math.mod(math.floor(q.skin_id / 10000),10);",
-					"v.stock = math.mod(math.floor(q.skin_id / 1000000),10);",
-					"v.muzzle = math.mod(math.floor(q.skin_id / 100000),10);",
-					"v.underbarrel = math.mod(math.floor(q.skin_id / 1000),10);"
+					"v.hk416 = v.variant == 1.0;"
 				],
-				"animate": ["root"]
+				"animate": [
+					"root"
+				]
 			},
 			"animations": {
 				"root": "animation.drop.initial"
 			},
-			"render_controllers":  [
+			"render_controllers": [
 				{
 					"controller.render.player.hk416.mag": " v.hk416 && v.mag != 0"
 				},

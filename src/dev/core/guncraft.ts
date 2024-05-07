@@ -63,7 +63,15 @@ namespace Guncraft {
 	}
 
 	export interface SecModeParam {
-
+		recoil: number,
+		accuracy: number,
+		fireSound: string,
+		bulletName: string,
+		damCoefficient?: number,
+		APCoefficient?: number,
+		speedCoefficient?: number,
+		bulletType?: Native.EntityType | number,
+		reloadTimeout: number
 	}
 
 	export interface Timeout {
@@ -132,6 +140,16 @@ namespace Guncraft {
 
 	const armorData = {}
 
+	export const emptyAttachment: AttachmentParam = {
+		type: '',
+		fov: 0,
+		accuracyCoefficient: 0,
+		recoilCoefficient: 0,
+		sound: null,
+		secMode: false,
+		secModeParam: null
+	}
+
 	export function createGun(id: string, name: string, param: GunParam, texture?: Item.TextureData): void {
 		IDRegistry.genItemID(id);
 		Item.createItem(id, name, texture || {
@@ -153,10 +171,10 @@ namespace Guncraft {
 		extra.putInt("mode", 0);
 		extra.putInt("currentBulletCount", 0);
 		extra.putInt("maxBulletCount", 0);
-		extra.putInt("attachmentID", 0);
+		extra.putInt("barrel", 0);
+		extra.putInt("magID", 0);
 		extra.putInt("reargrip", 0);
 		extra.putInt("laser", 0);
-		extra.putInt("barrel", 0);
 		extra.putInt("optic", 0);
 		extra.putInt("stock", 0);
 		extra.putInt("underbarrel", 0);
@@ -250,38 +268,23 @@ namespace Guncraft {
 		armorData[id] = param;
 	}
 
-	export function getArmor(id: string): ArmorParam {
-		if (armorData.hasOwnProperty(id))
-			return armorData[id];
-		else
-			return null;
+	export function getArmorData(id: string): ArmorParam {
+		return armorData.hasOwnProperty(id) ? armorData[id] : null;
 	}
 
-	export function getGun(id: string): GunParam {
-		if (gunData.hasOwnProperty(id))
-			return gunData[id];
-		else
-			return null;
+	export function getGunData(id: string): GunParam {
+		return gunData.hasOwnProperty(id) ? gunData[id] : null;
 	}
 
-	export function getMag(id: string): MagParam {
-		if (magData.hasOwnProperty(id))
-			return magData[id];
-		else
-			return null;
+	export function getMagData(id: string): MagParam {
+		return magData.hasOwnProperty(id) ? magData[id] : null;
 	}
 
-	export function getBullet(id: string): BulletParam {
-		if (bulletData.hasOwnProperty(id))
-			return bulletData[id];
-		else
-			return null;
+	export function getBulletData(id: string): BulletParam {
+		return bulletData.hasOwnProperty(id) ? bulletData[id] : null;
 	}
 
-	export function getAttachment(id: string): AttachmentParam {
-		if (attachmentData.hasOwnProperty(id))
-			return attachmentData[id];
-		else
-			return null;
+	export function getAttachmentData(id: string): AttachmentParam {
+		return attachmentData.hasOwnProperty(id) ? attachmentData[id] : null;
 	}
 }

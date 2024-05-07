@@ -1,45 +1,59 @@
-Callback.addCallback("ProjectileHit", function (p: number, i: ItemInstance, t: Callback.ProjectileHitTarget): void {
-	if (Damage.hasOwnProperty(p)) {
-		if (t.entity == -1) {
-			let _blockHitData = blockHitData,
-				bid = World.getBlock(t.coords.x, t.coords.y, t.coords.z).id;
-			if (_blockHitData.hasOwnProperty(bid)) {
-				let bdata = _blockHitData[bid];
-				if (Math.random() < bdata[0] * (AP[p] / 5)) {
-					let angle = Entity.getMovingAngle(p);
-					World.destroyBlock(t.coords.x, t.coords.y, t.coords.z, false);
-					AP[p] *= bdata[1];
-					Damage[p] *= bdata[1];
-					Speed[p] *= bdata[1];
-					Entity.moveToAngle(p, angle, { speed: Speed[p] });
-					return;
-				}
-			}
-			if (Explodes.hasOwnProperty(p)) {
-				World.explode(t.coords.x, t.coords.y, t.coords.z, (Damage[p] * 0.1) || 1, true);
-				delete (Explodes[p]);
-			} else if (Fires.hasOwnProperty(p)) {
-				let Ent = Entity.spawn(t.coords.x, t.coords.y, t.coords.z, Native.EntityType.SMALL_FIREBALL),
-					angle = Entity.getMovingAngle(p);
-				Entity.moveToAngle(Ent, angle, { speed: 20 });
-				delete (Fires[p]);
-			}
-		} else {
-			let damage: number = DamageCalculate(Damage[p], AP[p], t.y, t.entity);
-			Entity.damageEntity(t.entity, damage, 1, { attacker: Attacker[p], bool1: true });
-			if (Explodes.hasOwnProperty(p)) {
-				let Pos = Entity.getPosition(t.entity);
-				World.explode(Pos.x, Pos.y, Pos.z, (0.1 * damage) || 1, true);
-				delete (Explodes[p]);
-			} else if (Fires.hasOwnProperty(p)) {
-				Entity.setFire(t.entity, 60, true);
-				delete (Fires[p]);
+Callback.addCallback("ProjectileHit", function (projectileID: number, i: ItemInstance, target: Callback.ProjectileHitTarget): void {
+	if (!Damage.hasOwnProperty(projectileID))
+		return;
+
+	if (target.entity == -1) { // hit block
+		let blockHitData = BlockHitData,
+			hitBlockID = World.getBlock(target.coords.x, target.coords.y, target.coords.z).id;
+
+		if (blockHitData.hasOwnProperty(hitBlockID)) {
+			let bdata = blockHitData[hitBlockID];
+			if (Math.random() < bdata[0] * (AP[projectileID] / 5)) { // break block
+				let angle = Entity.getMovingAngle(projectileID);
+				World.destroyBlock(target.coords.x, target.coords.y, target.coords.z, false);
+				AP[projectileID] *= bdata[1];
+				Damage[projectileID] *= bdata[1];
+				Speed[projectileID] *= bdata[1];
+				Entity.moveToAngle(projectileID, angle, { speed: Speed[projectileID] });
+				return;
 			}
 		}
-		Entity.remove(p);
-		delete (Damage[p]);
-		delete (Speed[p]);
-		delete (Attacker[p]);
-		delete (AP[p]);
+
+		if (Explodes.hasOwnProperty(projectileID)) {
+			World.explode(target.coords.x, target.coords.y, target.coords.z,
+				(Damage[projectileID] * 0.1) || 1, true);
+			delete (Explodes[projectileID]);
+		} else if (Fires.hasOwnProperty(projectileID)) {
+			let fireID = Entity.spawn(target.coords.x, target.coords.y,
+				target.coords.z, Native.EntityType.SMALL_FIREBALL),
+				angle = Entity.getMovingAngle(projectileID);
+			Entity.moveToAngle(fireID, angle, { speed: 20 });
+			delete (Fires[projectileID]);
+		}
+	} else { // hit entity
+		let damage = DamageCalculate(
+			Damage[projectileID],
+			AP[projectileID],
+			target.y,
+			target.entity);
+		Entity.damageEntity(target.entity, damage, 1, {
+			attacker: Attacker[projectileID],
+			bool1: true
+		});
+
+		if (Explodes.hasOwnProperty(projectileID)) {
+			let pos = Entity.getPosition(target.entity);
+			World.explode(pos.x, pos.y, pos.z,
+				(0.1 * Damage[projectileID]) || 1, true);
+			delete (Explodes[projectileID]);
+		} else if (Fires.hasOwnProperty(projectileID)) {
+			Entity.setFire(target.entity, 60, true);
+			delete (Fires[projectileID]);
+		}
 	}
+	Entity.remove(projectileID);
+	delete (Damage[projectileID]);
+	delete (Speed[projectileID]);
+	delete (Attacker[projectileID]);
+	delete (AP[projectileID]);
 });

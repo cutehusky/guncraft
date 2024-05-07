@@ -1,10 +1,10 @@
 let fireMode = false,
 	modifyMode = false,
-	c_displayer = new UI.Container();
+	displayerUIContainer = new UI.Container();
 
 Network.addClientPacket("Guncraft.display", function (data:
 	{ text: string, color: number }): void {
-	let content = c_displayer.getGuiContent();
+	let content = displayerUIContainer.getGuiContent();
 	if (!content)
 		content = displayerUI.getContent();
 	content.elements["content"].text = data.text;
@@ -19,7 +19,7 @@ Network.addClientPacket("Guncraft.openUI",
 				content.elements["content"].text = "";
 				if (lastScreen == "in_game_play_screen") {
 					GUI.open();
-					c_displayer.openAs(displayerUI);
+					displayerUIContainer.openAs(displayerUI);
 				}
 				fireMode = true;
 				break;
@@ -37,7 +37,7 @@ Network.addClientPacket("Guncraft.closeUI",
 			case "fire":
 				if (GUI.isOpened()) {
 					GUI.close();
-					c_displayer.close();
+					displayerUIContainer.close();
 				}
 				fireMode = false;
 				break;

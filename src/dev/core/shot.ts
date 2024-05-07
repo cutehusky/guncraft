@@ -1,8 +1,16 @@
-interface bullet_param {
+interface BulletEntityParam {
 	damage: number,
 	ap: number,
 	speed: number,
 	type: number | Native.EntityType
+}
+
+function gaussianRandom(mean = 0, stdev = 1) {
+	const u = 1 - Math.random(); // Converting [0,1) to (0,1]
+	const v = Math.random();
+	const z = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+	// Transform to the desired mean and standard deviation:
+	return z * stdev + mean;
 }
 
 function angleInRadian(angle: number): number {
@@ -17,13 +25,14 @@ function lookDir(yaw: number, pitch: number): Vector {
 	};
 }
 
-function bulletData(bullet: Guncraft.BulletParam,
-	Gun: Guncraft.GunParam): bullet_param {
+function getBulletEntityData(
+	bulletData: Guncraft.BulletParam,
+	gunData: Guncraft.GunParam): BulletEntityParam {
 	return {
-		speed: bullet.speed * Gun.speedCoefficient,
-		type: Gun.bulletType,
-		damage: bullet.damage * Gun.damCoefficient,
-		ap: bullet.ap * Gun.APCoefficient
+		speed: bulletData.speed * gunData.speedCoefficient,
+		type: gunData.bulletType,
+		damage: bulletData.damage * gunData.damCoefficient,
+		ap: bulletData.ap * gunData.APCoefficient
 	};
 }
 
@@ -39,61 +48,69 @@ function bulletEffect(bullet: number, entity: number): void {
 		case 4:
 			Fires[entity] = true;
 		case 2:
-			(bullet != 1) && Entity.setFire(entity, 200, true);
+			if (bullet != 1)
+				Entity.setFire(entity, 200, true);
 			break;
 	}
 }
 
-function shotEntity(vectorSpawn: Vector, vectorSpeed: LookAngle, attacker: number, bullet: bullet_param, pp: Vector): number {
-	let entity = Entity.spawn(
-		pp.x + (vectorSpawn.x * 2), pp.y + (vectorSpawn.y * 2),
-		pp.z + (vectorSpawn.z * 2), bullet.type);
-	Entity.moveToAngle(entity, vectorSpeed, { speed: bullet.speed });
-	Speed[entity] = bullet.speed;
-	Damage[entity] = bullet.damage;
-	AP[entity] = bullet.ap;
-	Attacker[entity] = attacker;
-	return entity;
+function shotEntity(
+	spawnVec: Vector,
+	moveAngle: LookAngle,
+	attackerID: number,
+	bulletEntityData: BulletEntityParam,
+	pos: Vector): number {
+	let projectileID = Entity.spawn(
+		pos.x + (spawnVec.x * 2), pos.y + (spawnVec.y * 2),
+		pos.z + (spawnVec.z * 2), bulletEntityData.type);
+	Entity.moveToAngle(projectileID, moveAngle, { speed: bulletEntityData.speed });
+	Entity.setLookAngle(projectileID, moveAngle.yaw, moveAngle.pitch)
+	Speed[projectileID] = bulletEntityData.speed;
+	Damage[projectileID] = bulletEntityData.damage;
+	AP[projectileID] = bulletEntityData.ap;
+	Attacker[projectileID] = attackerID;
+	return projectileID;
 }
 
-function shotSingleBullet(Gun: Guncraft.GunParam,
-	bullet: Guncraft.BulletParam, attacker: number, pp: Vector, accuracyAdd: number): void {
-	let angle = Entity.getLookAngle(attacker),
-		ad = 1;
-	if (Math.random() > 0.5)
-		ad = -1;
-	angle.yaw += angleInRadian(Math.random()
-		* (Gun.accuracy / 60)) * ad * accuracyAdd * bullet.accuracyCoefficient;
-	if (Math.random() < 0.5)
-		ad = 1;
-	angle.pitch += angleInRadian(Math.random()
-		* (Gun.accuracy / 60)) * ad * accuracyAdd * bullet.accuracyCoefficient;
+function shotSingleBullet(
+	gunData: Guncraft.GunParam,
+	bulletData: Guncraft.BulletParam,
+	attackerID: number,
+	pos: Vector,
+	accuracyAdd: number): void {
+	let angle = Entity.getLookAngle(attackerID);
+	angle.yaw += angleInRadian(gaussianRandom()
+		* (gunData.accuracy / 60)) * accuracyAdd * bulletData.accuracyCoefficient;
+	angle.pitch += angleInRadian(gaussianRandom()
+		* (gunData.accuracy / 60)) * accuracyAdd * bulletData.accuracyCoefficient;
 	let ent = shotEntity(lookDir(angle.yaw, angle.pitch)
-		, angle, attacker, bulletData(bullet, Gun), pp);
-	(bullet.type != 0) && bulletEffect(bullet.type, ent);
+		, angle, attackerID, getBulletEntityData(bulletData, gunData), pos);
+	if (bulletData.type != 0)
+		bulletEffect(bulletData.type, ent);
 }
 
-function shotShotgun(Gun: Guncraft.GunParam, bullet: Guncraft.BulletParam,
-	attacker: number, pp: Vector, accuracyAdd: number) {
-	let _bullet = bulletData(bullet, Gun),
-		angle = Entity.getLookAngle(attacker),
-		d = lookDir(angle.yaw, angle.pitch),
-		ad = 1;
-	if (Math.random() > 0.5)
-		ad = -1;
-	angle.yaw += angleInRadian(Math.random() * Gun.accuracy / 60) * ad * bullet.accuracyCoefficient * accuracyAdd;
-	if (Math.random() < 0.5)
-		ad = 1;
-	angle.pitch += angleInRadian(Math.random() * Gun.accuracy / 60) * ad * accuracyAdd * bullet.accuracyCoefficient;
-	for (let i = 0; i < bullet.shotgunCount; i++) {
-		if (Math.random() > 0.5)
-			ad = -1;
-		let yaw = angle.yaw + angleInRadian(Math.random() * (bullet.shotgunDegreesSpread / 60)) * ad;
-		if (Math.random() < 0.5)
-			ad = 1;
-		let pitch = angle.pitch + angleInRadian(Math.random()
-			* (bullet.shotgunDegreesSpread / 60)) * ad;
-		let ent = shotEntity(d, { yaw: yaw, pitch: pitch }, attacker, _bullet, pp);
-		(bullet.type != 0) && bulletEffect(bullet.type, ent);
+function shotShotgun(
+	gunData: Guncraft.GunParam,
+	bulletData: Guncraft.BulletParam,
+	attackerID: number,
+	pos: Vector,
+	accuracyAdd: number) {
+	let _bullet = getBulletEntityData(bulletData, gunData),
+		angle = Entity.getLookAngle(attackerID),
+		shotVec = lookDir(angle.yaw, angle.pitch);
+
+	angle.yaw += angleInRadian(gaussianRandom()
+		* gunData.accuracy / 60) * bulletData.accuracyCoefficient * accuracyAdd;
+	angle.pitch += angleInRadian(gaussianRandom()
+		* gunData.accuracy / 60) * accuracyAdd * bulletData.accuracyCoefficient;
+
+	for (let i = 0; i < bulletData.shotgunCount; i++) {
+		let yaw = angle.yaw + angleInRadian(gaussianRandom()
+			* (bulletData.shotgunDegreesSpread / 60));
+		let pitch = angle.pitch + angleInRadian(gaussianRandom()
+			* (bulletData.shotgunDegreesSpread / 60));
+		let ent = shotEntity(shotVec, { yaw: yaw, pitch: pitch }, attackerID, _bullet, pos);
+		if (bulletData.type != 0)
+			bulletEffect(bulletData.type, ent);
 	}
 }

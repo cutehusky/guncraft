@@ -1,31 +1,38 @@
-function drop(ent: number): void {
-	let Ent = Entity.getRiding(ent);
-	if (Ent == -1)
+function drop(entityID: number): void {
+	let itemEntity = Entity.getRiding(entityID);
+	if (itemEntity == -1)
 		return;
-	let entity = new KEX.Mob(ent);
-	entity.setSkinID(JSON.parse(Entity.getCompoundTag(Ent)
-		.getCompoundTag("Item").toScriptable().tag["$mod"]).attachmentID);
+	let itemData = JSON.parse(Entity.getCompoundTag(itemEntity)
+		.getCompoundTag("Item").toScriptable().tag["$mod"]);
+	AnimationComponet.SetMolangVariable(entityID, "variable.barrel", itemData.barrel);
+	AnimationComponet.SetMolangVariable(entityID, "variable.mag", itemData.magID);
+	AnimationComponet.SetMolangVariable(entityID, "variable.reargrip", itemData.reargrip);
+	AnimationComponet.SetMolangVariable(entityID, "variable.underbarrel", itemData.underbarrel);
+	AnimationComponet.SetMolangVariable(entityID, "variable.optic", itemData.optic);
+	AnimationComponet.SetMolangVariable(entityID, "variable.muzzle", itemData.muzzle);
+	AnimationComponet.SetMolangVariable(entityID, "variable.stock", itemData.stock);
+	AnimationComponet.SetMolangVariable(entityID, "variable.laser", itemData.laser);
 }
 
-Callback.addCallback("EntityAdded", function (ent: number): void {
-	let type = Entity.getType(ent);
-	if (type == Native.EntityType.ITEM) {
-		let tag = Entity.getCompoundTag(ent),
-			item = tag.getCompoundTag("Item").toScriptable(),
-			id: string = item.Name.replace("minecraft:item_", ""),
-			gun = Guncraft.getGun(id);
-		if (gun) {
+Callback.addCallback("EntityAdded", function (entityID: number): void {
+	let entityType = Entity.getType(entityID);
+	if (entityType == Native.EntityType.ITEM) {
+		let tag = Entity.getCompoundTag(entityID),
+			itemData = tag.getCompoundTag("Item").toScriptable(),
+			itemID: string = itemData.Name.replace("minecraft:item_", ""),
+			gunData = Guncraft.getGunData(itemID);
+		if (gunData) {
 			// initial native drop item
 			let list = tag.getListTag("Tags");
-			list.putString(list.length(), "item." + id);
+			list.putString(list.length(), "item." + itemID);
 			tag.putListTag("Tags", list);
-			Entity.setCompoundTag(ent, tag);
+			Entity.setCompoundTag(entityID, tag);
 		}
-	} else if (!type) {
-		let tag = Entity.getCompoundTag(ent),
+	} else if (!entityType) {
+		let tag = Entity.getCompoundTag(entityID),
 			id = tag.getString("identifier");
 		// initial custom drop item model
 		if (id == "drop:gun")
-			GuncraftUtil.delay(drop, 0.1, ent);
+			GuncraftUtil.delay(drop, 0.1, entityID);
 	}
 });

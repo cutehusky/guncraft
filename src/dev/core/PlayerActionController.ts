@@ -10,7 +10,7 @@ enum ActionState {
 
 class PlayerActionController {
 	uid: number;
-	GunData: Guncraft.GunParam;
+	gunData: Guncraft.GunParam;
 	currentSlotIndex: number;
 
 	kexPlayer: KEX.Player;
@@ -24,7 +24,7 @@ class PlayerActionController {
 
 	// reload
 	taskName: string;
-	reloadItem: ItemInstance;
+	reloadMagItem: ItemInstance;
 	reloadMagArr: NBT.ListTag;
 
 	// mag
@@ -35,19 +35,19 @@ class PlayerActionController {
 	// attachment
 	fov: number;
 	mode: number;
-	newSound: string;
+	specialSound: string;
 	secMode: boolean;
 	recoilCoefficient: number;
 	accuracyCoefficient: number;
 
 	// animation
-	attachmentID: number;
+	attachmentIndexs: { [key: string]: number };
 	stateID: number;
 	carryingMagID: number;
 	updateAnimationTimeout: number;
 
-	constructor(uid: number, item: ItemInstance, gun: Guncraft.GunParam, currentSlot: number) {
-		this.currentSlotIndex = currentSlot;
+	constructor(uid: number, item: ItemInstance, gunData: Guncraft.GunParam, currentSlotIndex: number) {
+		this.currentSlotIndex = currentSlotIndex;
 		this.actionState = ActionState.none;
 		this.taskName = "";
 		this.updateAnimationTimeout = UpdateAnimationTimeout;
@@ -58,17 +58,26 @@ class PlayerActionController {
 		this.isAim = false;
 		this.isSecMode = false;
 		this.emptySound = false;
-		this.GunData = gun;
+		this.attachmentIndexs = {
+			barrel: item.extra.getInt("barrel", 0),
+			mag: gunData.mag.indexOf(item.extra.getString("mag") + "") + 1,
+			reargrip: item.extra.getInt("reargrip", 0),
+			underbarrel: item.extra.getInt("underbarrel", 0),
+			optic: item.extra.getInt("optic", 0),
+			muzzle: item.extra.getInt("muzzle", 0),
+			stock: item.extra.getInt("stock", 0),
+			laser: item.extra.getInt("laser", 0)
+		};
+		this.gunData = gunData;
 		this.currentBulletCount = item.extra.getInt("currentBulletCount", 0);
 		this.maxBulletCount = item.extra.getInt("maxBulletCount", 0);
 		this.magArr = GuncraftUtil.getInventorySlotCompoundTag(this.uid, this.currentSlotIndex).getListTag("magArr").toScriptable();
 		this.fov = item.extra.getInt("fov", 0);
 		this.mode = item.extra.getInt("mode", 0);
-		this.newSound = item.extra.getString("newSound", null);
+		this.specialSound = item.extra.getString("newSound", null);
 		this.secMode = item.extra.getBoolean("secMode", false);
 		this.recoilCoefficient = item.extra.getFloat("recoilCoefficient", 1);
 		this.accuracyCoefficient = item.extra.getFloat("accuracyCoefficient", 1);
-		this.attachmentID = item.extra.getInt("attachmentID");
 		this.carryingMagID = 0;
 		this.kexPlayer = new KEX.Player(this.uid);
 		this.client = Network.getClientForPlayer(this.uid);
@@ -83,23 +92,22 @@ class PlayerActionController {
 		this.client.send("Guncraft.resetFov", {})
 		let player = this.kexPlayer;
 		player.setSkinID(0);
-		player.setVariant(0);
 		this.client.send("Guncraft.closeUI", {
 			name: "fire"
 		});
 		this.client.send("Guncraft.closeUI", {
 			name: "modify"
 		});
-		if (this.reloadItem) {
+		if (this.reloadMagItem) {
 			if (this.reloadMagArr) {
 				let tag = new NBT.CompoundTag();
 				tag.putListTag("magArr", this.reloadMagArr);
 				// @ts-ignore
-				this.reloadItem.extra.setCompoundTag(tag);
+				this.reloadMagItem.extra.setCompoundTag(tag);
 			}
-			player.addItemToInventory(this.reloadItem.id,
-				this.reloadItem.count, this.reloadItem.data,
-				this.reloadItem.extra);
+			player.addItemToInventory(this.reloadMagItem.id,
+				this.reloadMagItem.count, this.reloadMagItem.data,
+				this.reloadMagItem.extra);
 		}
 	}
 
@@ -139,28 +147,30 @@ class PlayerActionController {
 
 	shot(): boolean {
 		let uid = this.uid,
-			Gun = this.GunData;
+			gunData = this.gunData;
 		if (this.currentBulletCount <= 0)
 			return false;
 		// @ts-ignore
-		let bullet = Guncraft.getBullet(this.magArr[this.currentBulletCount - 1]),
-			pp = Entity.getPosition(uid);
-		GuncraftUtil.playSound(pp, this.newSound || Gun.fireSound);
+		let bullet = Guncraft.getBulletData(this.magArr[this.currentBulletCount - 1]),
+			playerPos = Entity.getPosition(uid);
+		// play sound
+		GuncraftUtil.playSound(playerPos, this.specialSound || gunData.fireSound);
+		// recoil
 		Commands.execAt("camerashake add @p "
-			+ String(Gun.recoil * this.recoilCoefficient * bullet.recoilCoefficient)
-			+ " 0.2 rotational", pp.x, pp.y, pp.z);
-		(Gun.type != Guncraft.GunType.SHOTGUN)
-			? shotSingleBullet(Gun, bullet, uid, pp, this.accuracyCoefficient)
-			: shotShotgun(Gun, bullet, uid, pp, this.accuracyCoefficient);
+			+ String(gunData.recoil * this.recoilCoefficient * bullet.recoilCoefficient)
+			+ " 0.2 rotational", playerPos.x, playerPos.y, playerPos.z);
+		// shot 
+		(gunData.type != Guncraft.GunType.SHOTGUN)
+			? shotSingleBullet(gunData, bullet, uid, playerPos, this.accuracyCoefficient)
+			: shotShotgun(gunData, bullet, uid, playerPos, this.accuracyCoefficient);
 		this.currentBulletCount--;
-		if (!this.currentBulletCount && !Gun.slideStop)
+		if (!this.currentBulletCount && !gunData.slideStop)
 			this.emptySound = true;
 		return true;
 	}
 
-	secModeShot(): boolean {
+	secModeShot(): void {
 		//coming soon
-		return false
 	}
 
 	secModeReload(): void {
@@ -173,27 +183,27 @@ class PlayerActionController {
 		this.isAim = false;
 		this.changeSelectiveFireAnimation();
 		this.taskName = "_sf";
-		this.timeout = this.GunData.timeout.sf;
+		this.timeout = this.gunData.timeout.sf;
 		this.actionState = ActionState.sfChanging;
 	}
 
 	_sf(): void {
 		this.carryAnimation();
-		let nmode = this.GunData.mode,
+		let gunMode = this.gunData.mode,
 			player = new PlayerActor(this.uid),
 			gunItem = player.getInventorySlot(this.currentSlotIndex);
 
 		if (!gunItem.extra)
 			return;
 		if (this.mode) {
-			for (let i: number = 0; i < nmode.length; i++) {
-				if (this.mode == nmode[i]) {
-					this.mode = nmode[i + 1] || 0;
+			for (let i = 0; i < gunMode.length; i++) {
+				if (this.mode == gunMode[i]) {
+					this.mode = gunMode[i + 1] || 0;
 					break;
 				}
 			}
 		} else
-			this.mode = nmode[0];
+			this.mode = gunMode[0];
 		gunItem.extra.putInt("mode", this.mode);
 		let tag = GuncraftUtil.getInventorySlotCompoundTag(this.uid, this.currentSlotIndex);
 		// @ts-ignore
@@ -203,15 +213,15 @@ class PlayerActionController {
 	}
 
 	getMagInInventory(player: PlayerActor): number {
-		let GunData = this.GunData,
-			magId = GunData.mag;
+		let gunData = this.gunData,
+			availableMagId = gunData.mag;
 		for (let i = 0; i <= 35; i++) {
-			let slot = player.getInventorySlot(i);
-			for (let k: number = 0; k < magId.length; k++) {
-				if (slot.id == ItemID[magId[k]]
-					&& slot.extra
-					&& slot.extra.getInt("currentBulletCount", 0)
-					&& slot.extra.getString("bulletParent", null) == GunData.bulletName)
+			let itemInSlot = player.getInventorySlot(i);
+			for (let k = 0; k < availableMagId.length; k++) {
+				if (itemInSlot.id == ItemID[availableMagId[k]]
+					&& itemInSlot.extra
+					&& itemInSlot.extra.getInt("currentBulletCount", 0)
+					&& itemInSlot.extra.getString("bulletParent", null) == gunData.bulletName)
 					return i;
 			}
 		}
@@ -224,78 +234,82 @@ class PlayerActionController {
 		this.carryAnimation();
 		let player = new PlayerActor(this.uid),
 			gunItem = player.getInventorySlot(this.currentSlotIndex),
-			targetSlotIndex = this.getMagInInventory(player);
-		if (targetSlotIndex != -1) {
-			this.reloadItem = player.getInventorySlot(targetSlotIndex);
-			this.reloadMagArr = GuncraftUtil.getInventorySlotCompoundTag(this.uid, targetSlotIndex)
+			targetMagSlotIndex = this.getMagInInventory(player);
+
+		if (targetMagSlotIndex != -1) {
+
+			this.reloadMagItem = player.getInventorySlot(targetMagSlotIndex);
+			this.reloadMagArr = GuncraftUtil.getInventorySlotCompoundTag(this.uid, targetMagSlotIndex)
 				.getListTag("magArr");
 			this.taskName = "reload_1";
-			player.setInventorySlot(targetSlotIndex, 0, 0, 0, null);
-			let targetItemId = IDRegistry.getNameByID(this.reloadItem.id);
+
+			player.setInventorySlot(targetMagSlotIndex, 0, 0, 0, null);
+
+			let targetItemId = IDRegistry.getNameByID(this.reloadMagItem.id);
 			if (gunItem.data) {
-				let isMag = Guncraft.getMag(targetItemId).isMag,
-					isMag2 = Guncraft.getMag(gunItem.extra.getString("mag")).isMag;
+				let isMag = Guncraft.getMagData(targetItemId).isMag,
+					isMag2 = Guncraft.getMagData(gunItem.extra.getString("mag")).isMag;
 				if (this.currentBulletCount > 0) {
 					if (isMag && isMag2) {
-						this.timeout = this.GunData.timeout.mag2mag2;
+						this.timeout = this.gunData.timeout.mag2mag2;
 						this.mag2mag2_reloadAnimation(targetItemId);
 					} else if (!isMag && isMag2) {
-						this.timeout = this.GunData.timeout.link2mag2;
+						this.timeout = this.gunData.timeout.link2mag2;
 						this.link2mag2_reloadAnimation(targetItemId);
 					} else if (isMag && !isMag2) {
-						this.timeout = this.GunData.timeout.mag2link2;
+						this.timeout = this.gunData.timeout.mag2link2;
 						this.mag2link2_reloadAnimation(targetItemId);
 					} else {
-						this.timeout = this.GunData.timeout.link2link2;
+						this.timeout = this.gunData.timeout.link2link2;
 						this.link2link2_reloadAnimation(targetItemId);
 					}
 				} else {
 					if (isMag && isMag2) {
 						this.mag2mag_reloadAnimation(targetItemId);
-						this.timeout = this.GunData.timeout.mag2mag;
+						this.timeout = this.gunData.timeout.mag2mag;
 					} else if (!isMag && isMag2) {
-						this.timeout = this.GunData.timeout.link2mag;
+						this.timeout = this.gunData.timeout.link2mag;
 						this.link2mag_reloadAnimation(targetItemId);
 					} else if (isMag && !isMag2) {
-						this.timeout = this.GunData.timeout.mag2link;
+						this.timeout = this.gunData.timeout.mag2link;
 						this.mag2link_reloadAnimation(targetItemId);
 					} else {
-						this.timeout = this.GunData.timeout.link2link;
+						this.timeout = this.gunData.timeout.link2link;
 						this.link2link_reloadAnimation(targetItemId);
 					}
 				}
 			} else {
-				let isMag = Guncraft.getMag(targetItemId).isMag;
+				let isMag = Guncraft.getMagData(targetItemId).isMag;
 				if (isMag) {
 					this.loadMag_reloadAnimation(targetItemId);
-					this.timeout = this.GunData.timeout.loadMag;
+					this.timeout = this.gunData.timeout.loadMag;
 				} else {
 					this.loadLink_reloadAnimation(targetItemId);
-					this.timeout = this.GunData.timeout.loadLink;
+					this.timeout = this.gunData.timeout.loadLink;
 				}
 			}
 		} else {
 			if (!gunItem.data)
 				return;
 			this.taskName = "reload_0";
-			this.reloadItem = null;
+			this.reloadMagItem = null;
 			this.reloadMagArr = null;
-			let isMag2 = Guncraft.getMag(gunItem.extra.getString("mag")).isMag;
+			let isMag2 = Guncraft.getMagData(gunItem.extra.getString("mag")).isMag;
 			if (this.currentBulletCount > 0) {
 				if (isMag2) {
 					this.unloadMag2_reloadAnimation();
-					this.timeout = this.GunData.timeout.unloadMag2;
+					this.timeout = this.gunData.timeout.unloadMag2;
 				} else {
 					this.unloadLink2_reloadAnimation();
-					this.timeout = this.GunData.timeout.unloadLink2;
+					this.timeout = this.gunData.timeout.unloadLink2;
 				}
 			} else {
 				if (isMag2) {
 					this.unloadMag_reloadAnimation();
-					this.timeout = this.GunData.timeout.unloadMag;
+					this.timeout = this.gunData.timeout.unloadMag;
 				} else {
 					this.unloadLink_reloadAnimation();
-					this.timeout = this.GunData.timeout.unloadLink;
+					this.timeout = this.gunData.timeout.unloadLink;
 				}
 			}
 		}
@@ -310,19 +324,21 @@ class PlayerActionController {
 	reload_1(): void {
 		let player: PlayerActor = new PlayerActor(this.uid),
 			gunItem: ItemInstance = player.getInventorySlot(this.currentSlotIndex);
+
 		let add = gunItem.data ? this.unloadMag(gunItem.extra, player,
-			this.GunData.saveBullet, true) : null;
-		this.loadMag(gunItem.extra, add, gunItem.id, this.reloadItem,
+			this.gunData.saveBullet, false) : null;
+
+		this.loadMag(gunItem.extra, add, gunItem.id, this.reloadMagItem,
 			this.reloadMagArr, player);
-		this.reloadItem = null;
-		this.reloadMagArr = null;
 	}
 
 	reload_0(): void {
 		let player = new PlayerActor(this.uid),
 			gunItem = player.getInventorySlot(this.currentSlotIndex);
-		this.unloadMag(gunItem.extra, player, this.GunData.saveBullet);
+		this.unloadMag(gunItem.extra, player, this.gunData.saveBullet);
+
 		gunItem.extra.putString("mag", null);
+		gunItem.extra.putInt("magID", 0);
 		gunItem.extra.putInt("currentBulletCount", 0);
 		gunItem.extra.putInt("maxBulletCount", 0);
 		gunItem.extra.putString("bulletParent", null);
@@ -330,58 +346,62 @@ class PlayerActionController {
 		tag.putListTag("magArr", new NBT.ListTag());
 		//@ts-ignore
 		gunItem.extra.setCompoundTag(tag);
-		this.attachmentID = Math.floor(this.attachmentID / 100) * 100;
-		gunItem.extra.putInt("attachmentID", this.attachmentID);
 		player.setInventorySlot(this.currentSlotIndex,
 			gunItem.id, gunItem.count, 0, gunItem.extra);
+
+		this.attachmentIndexs['mag'] = 0;
 		this.currentBulletCount = 0;
 		this.carryingMagID = 0;
 		this.maxBulletCount = 0;
 		this.emptySound = true;
 	}
 
-	unloadMag(gunExtraData: ItemExtraData, player: PlayerActor, saveBullet: boolean
-		, b?: boolean): string {
-		let extra = new ItemExtraData(),
+	unloadMag(gunExtraData: ItemExtraData, player: PlayerActor, saveBulletInGun: boolean
+		, dropBullet: boolean = true): string {
+		let magExtraData = new ItemExtraData(),
 			magArr = GuncraftUtil.getInventorySlotCompoundTag(this.uid, this.currentSlotIndex)
 				.getListTag("magArr");
+
 		if (this.currentBulletCount > 1
-			|| (this.currentBulletCount > 0 && !saveBullet)) {
+			|| (this.currentBulletCount > 0 && !saveBulletInGun)) {
 			let tag: NBT.CompoundTag = new NBT.CompoundTag();
 			tag.putListTag("magArr", magArr);
 			//@ts-ignore
-			extra.setCompoundTag(tag);
-			extra.putInt("maxBulletCount", this.maxBulletCount);
-			extra.putString("bulletParent", gunExtraData.getString("bulletParent"));
-			if (saveBullet) {
-				extra.putInt("currentBulletCount", this.currentBulletCount - 1);
+			magExtraData.setCompoundTag(tag);
+			magExtraData.putInt("maxBulletCount", this.maxBulletCount);
+			magExtraData.putString("bulletParent", gunExtraData.getString("bulletParent"));
+
+			if (saveBulletInGun) {
+				magExtraData.putInt("currentBulletCount", this.currentBulletCount - 1);
 				let scale = Math.round(((this.maxBulletCount - this.currentBulletCount + 1)
 					/ this.maxBulletCount * 100) + 1);
 				player.addItemToInventory(ItemID[gunExtraData.getString("mag")],
-					1, scale, extra, true);
-				if (!b)
+					1, scale, magExtraData, true);
+				if (dropBullet)
 					player.addItemToInventory(ItemID[magArr.getString(this.currentBulletCount - 1)], 1, 0, null, false);
 				else
 					return magArr.getString(this.currentBulletCount - 1);
 			} else {
-				extra.putInt("currentBulletCount", this.currentBulletCount);
+				magExtraData.putInt("currentBulletCount", this.currentBulletCount);
 				let scale = Math.round(((this.maxBulletCount - this.currentBulletCount)
 					/ this.maxBulletCount * 100) + 1);
 				player.addItemToInventory(ItemID[gunExtraData.getString("mag")],
-					1, scale, extra, true);
+					1, scale, magExtraData, true);
 			}
-		} else {
-			extra.putInt("currentBulletCount", 0);
-			extra.putInt("maxBulletCount", 0);
-			extra.putString("bulletParent", null);
+
+		} else { // drop empty mag
+			magExtraData.putInt("currentBulletCount", 0);
+			magExtraData.putInt("maxBulletCount", 0);
+			magExtraData.putString("bulletParent", null);
 			let tag = new NBT.CompoundTag();
 			tag.putListTag("magArr", new NBT.ListTag());
 			// @ts-ignore
-			extra.setCompoundTag(tag);
+			magExtraData.setCompoundTag(tag);
 			player.addItemToInventory(ItemID[gunExtraData.getString("mag")],
-				1, 101, extra, true);
+				1, 101, magExtraData, true);
+
 			if (this.currentBulletCount) {
-				if (!b)
+				if (dropBullet)
 					player.addItemToInventory(ItemID[magArr.getString(0)], 1, 0, null, false);
 				else
 					return magArr.getString(0);
@@ -390,31 +410,31 @@ class PlayerActionController {
 		return null;
 	}
 
-	loadMag(gunExtra: ItemExtraData, add: string,
-		gunId: number, slot: ItemInstance, magArr: NBT.ListTag
-		, player: PlayerActor): void {
-		let bulletCountMax = slot.extra.getInt("maxBulletCount"),
-			bulletCount = slot.extra.getInt("currentBulletCount");
-		gunExtra.putInt("maxBulletCount", bulletCountMax);
-		if (add) {
-			magArr.putString(bulletCount, add);
-			bulletCount++;
-		}
-		gunExtra.putInt("currentBulletCount", bulletCount);
-		gunExtra.putString("mag", IDRegistry.getNameByID(slot.id));
-		gunExtra.putString("bulletParent", slot.extra.getString("bulletParent"));
+	loadMag(gunExtraData: ItemExtraData, add: string,
+		gunId: number, magItem: ItemInstance, magArr: NBT.ListTag,
+		player: PlayerActor): void {
+		let bulletCountMax = magItem.extra.getInt("maxBulletCount"),
+			bulletCount = magItem.extra.getInt("currentBulletCount");
+		gunExtraData.putInt("maxBulletCount", bulletCountMax);
+		if (add)
+			magArr.putString(bulletCount++, add);
+		gunExtraData.putInt("currentBulletCount", bulletCount);
+		gunExtraData.putInt("magID", (this.gunData.mag.indexOf(IDRegistry.getNameByID(magItem.id)) + 1));
+		gunExtraData.putString("mag", IDRegistry.getNameByID(magItem.id));
+		gunExtraData.putString("bulletParent", magItem.extra.getString("bulletParent"));
 		let tag: NBT.CompoundTag = new NBT.CompoundTag();
 		tag.putListTag("magArr", magArr);
 		// @ts-ignore
-		gunExtra.setCompoundTag(tag);
+		gunExtraData.setCompoundTag(tag);
+		player.setInventorySlot(this.currentSlotIndex, gunId, 1, 1, gunExtraData);
+
 		this.maxBulletCount = bulletCountMax;
 		this.currentBulletCount = bulletCount;
-		this.attachmentID = Math.floor(this.attachmentID / 100) * 100
-			+ (this.GunData.mag.indexOf(IDRegistry.getNameByID(slot.id)) + 1) * 10;
-		gunExtra.putInt("attachmentID", this.attachmentID);
+		this.attachmentIndexs['mag'] = (this.gunData.mag.indexOf(IDRegistry.getNameByID(magItem.id)) + 1);
 		this.carryingMagID = 0;
+		this.reloadMagItem = null;
+		this.reloadMagArr = null;
 		this.magArr = magArr.toScriptable();
-		player.setInventorySlot(this.currentSlotIndex, gunId, 1, 1, gunExtra);
 	}
 
 	updatePlayerAnimation(): void {
@@ -424,13 +444,13 @@ class PlayerActionController {
 			return;
 		}
 		this.updateAnimationTimeout = UpdateAnimationTimeout;
-		player.setVariant(this.attachmentID);
 	}
 
 	animationTransition(state: number): void {
 		let player = this.kexPlayer;
 		this.stateID = state;
-		player.setVariant(this.attachmentID);
+		for (let key in this.attachmentIndexs)
+			AnimationComponet.SetMolangVariable(this.uid, "variable." + key, this.attachmentIndexs[key]);
 		player.setSkinID(state * 100 + this.carryingMagID);
 	}
 
@@ -464,52 +484,52 @@ class PlayerActionController {
 	}
 
 	loadMag_reloadAnimation(mag: string): void {
-		this.carryingMagID = this.GunData.mag.indexOf(mag) + 1;
+		this.carryingMagID = this.gunData.mag.indexOf(mag) + 1;
 		this.animationTransition(2);
 	}
 
 	loadLink_reloadAnimation(mag: string): void {
-		this.carryingMagID = this.GunData.mag.indexOf(mag) + 1;
+		this.carryingMagID = this.gunData.mag.indexOf(mag) + 1;
 		this.animationTransition(3);
 	}
 
 	mag2mag_reloadAnimation(mag: string): void {
-		this.carryingMagID = this.GunData.mag.indexOf(mag) + 1;
+		this.carryingMagID = this.gunData.mag.indexOf(mag) + 1;
 		this.animationTransition(2);
 	}
 
 	mag2mag2_reloadAnimation(mag: string): void {
-		this.carryingMagID = this.GunData.mag.indexOf(mag) + 1;
+		this.carryingMagID = this.gunData.mag.indexOf(mag) + 1;
 		this.animationTransition(3);
 	}
 
 	link2mag_reloadAnimation(mag: string): void {
-		this.carryingMagID = this.GunData.mag.indexOf(mag) + 1;
+		this.carryingMagID = this.gunData.mag.indexOf(mag) + 1;
 		this.animationTransition(10);
 	}
 
 	link2mag2_reloadAnimation(mag: string): void {
-		this.carryingMagID = this.GunData.mag.indexOf(mag) + 1;
+		this.carryingMagID = this.gunData.mag.indexOf(mag) + 1;
 		this.animationTransition(11);
 	}
 
 	mag2link_reloadAnimation(mag: string): void {
-		this.carryingMagID = this.GunData.mag.indexOf(mag) + 1;
+		this.carryingMagID = this.gunData.mag.indexOf(mag) + 1;
 		this.animationTransition(12);
 	}
 
 	mag2link2_reloadAnimation(mag: string): void {
-		this.carryingMagID = this.GunData.mag.indexOf(mag) + 1;
+		this.carryingMagID = this.gunData.mag.indexOf(mag) + 1;
 		this.animationTransition(13);
 	}
 
 	link2link_reloadAnimation(mag: string): void {
-		this.carryingMagID = this.GunData.mag.indexOf(mag) + 1;
+		this.carryingMagID = this.gunData.mag.indexOf(mag) + 1;
 		this.animationTransition(14);
 	}
 
 	link2link2_reloadAnimation(mag: string): void {
-		this.carryingMagID = this.GunData.mag.indexOf(mag) + 1;
+		this.carryingMagID = this.gunData.mag.indexOf(mag) + 1;
 		this.animationTransition(15);
 	}
 
@@ -537,17 +557,17 @@ class PlayerActionController {
 		this.animationTransition(9);
 	}
 
-	getAttachmentInSlot(type: string, player: PlayerActor, slotIndex: number)
+	getAttachmentInSlot(attachmentType: string, player: PlayerActor, slotIndex: number)
 		: { index: number, data: Guncraft.AttachmentParam, slotIndex: number } {
-		let slot = player.getInventorySlot(slotIndex),
-			attachmentID = IDRegistry.getNameByID(slot.id),
-			attachmentData = Guncraft.getAttachment(attachmentID);
+		let itemInSlot = player.getInventorySlot(slotIndex),
+			attachmentID = IDRegistry.getNameByID(itemInSlot.id),
+			attachmentData = Guncraft.getAttachmentData(attachmentID);
 		if (attachmentData) {
-			if (attachmentData.type == type) {
-				let index = this.GunData.attachment[type].indexOf(attachmentID);
-				if (index != -1) {
+			if (attachmentData.type == attachmentType) {
+				let attachmentIndex = this.gunData.attachment[attachmentType].indexOf(attachmentID);
+				if (attachmentIndex != -1) {
 					return {
-						index: index,
+						index: attachmentIndex,
 						data: attachmentData,
 						slotIndex: slotIndex
 					};
@@ -557,95 +577,85 @@ class PlayerActionController {
 		return null;
 	}
 
-	getAttachmentInInventory(type: string, player: PlayerActor)
+	getAttachmentInInventory(attachmentType: string, player: PlayerActor)
 		: { index: number, data: Guncraft.AttachmentParam, slotIndex: number } {
 		for (let i = 0; i <= 35; i++) {
-			let res = this.getAttachmentInSlot(type, player, i);
+			let res = this.getAttachmentInSlot(attachmentType, player, i);
 			if (res)
 				return res;
 		}
 		return null;
 	}
 
-	modify(type: string): void {
-		let player = new PlayerActor(this.uid),
-			data = this.getAttachmentInInventory(type, player),
-			GunData = this.GunData;
-		if (!data) {
-			data = {
-				data: {
-					type: '',
-					fov: 0,
-					accuracyCoefficient: 0,
-					recoilCoefficient: 0,
-					sound: null,
-					secMode: false,
-				},
+	modify(attachmentType: string): void {
+		let player: PlayerActor = new PlayerActor(this.uid),
+			result = this.getAttachmentInInventory(attachmentType, player);
+
+		if (!result) {
+			result = {
+				data: Guncraft.emptyAttachment,
 				slotIndex: -1,
 				index: -1
 			};
 		}
-		let Gun: ItemInstance = player.getInventorySlot(this.currentSlotIndex),
-			old: number = Gun.extra.getInt(type, 0),
+
+		let GunItem: ItemInstance = player.getInventorySlot(this.currentSlotIndex),
+			GunData: Guncraft.GunParam = this.gunData,
+			oldAttachmentIndex: number = GunItem.extra.getInt(attachmentType, 0),
 			oldData1: number = 0,
 			oldData2: number = 0;
-		if (data.slotIndex != -1)
-			if (old)
-				player.setInventorySlot(data.slotIndex,
-					ItemID[GunData.attachment[type][old - 1]], 1, 0, null)
-			else
-				player.setInventorySlot(data.slotIndex, 0, 0, 0, null);
-		else if (old)
-			player.addItemToInventory(ItemID[GunData.attachment[type][old - 1]], 1, 0, null, false);
-		Gun.extra.putInt(type, data.index + 1);
-		this.attachmentID = Gun.extra.getInt("reargrip", 0) * 100000000
-			+ Gun.extra.getInt("barrel", 0)
-			+ Gun.extra.getInt("laser", 0) * 10000000
-			+ Gun.extra.getInt("stock", 0) * 1000000
-			+ Gun.extra.getInt("muzzle", 0) * 100000
-			+ Gun.extra.getInt("optic", 0) * 10000
-			+ Gun.extra.getInt("underbarrel", 0) * 1000
-			+ (GunData.mag.indexOf(Gun.extra.getString("mag") + "") + 1) * 10;
-		Gun.extra.putInt("attachmentID", this.attachmentID);
-		switch (type) {
+
+		if (result.slotIndex != -1)
+			if (oldAttachmentIndex) // swap old attachment and select attachment in inventory
+				player.setInventorySlot(result.slotIndex,
+					ItemID[GunData.attachment[attachmentType][oldAttachmentIndex - 1]], 1, 0, null)
+			else // remove selected attachment in inventory
+				player.setInventorySlot(result.slotIndex, 0, 0, 0, null);
+		else if (oldAttachmentIndex) // uninstall old attachment
+			player.addItemToInventory(ItemID[GunData.attachment[attachmentType][oldAttachmentIndex - 1]], 1, 0, null, false);
+
+		GunItem.extra.putInt(attachmentType, result.index + 1);
+		this.attachmentIndexs[attachmentType] = result.index + 1;
+		AnimationComponet.SetMolangVariable(this.uid, "variable." + attachmentType, result.index + 1);
+
+		switch (attachmentType) {
 			case "optic":
-				Gun.extra.putInt("fov", data.data.fov);
+				GunItem.extra.putInt("fov", result.data.fov);
 				break;
 			case "underbarrel":
 			case "muzzle":
-				if (type == "underbarrel")
-					(data.data.secMode)
-						? Gun.extra.putBoolean("secMode", true)
-						: Gun.extra.putBoolean("secMode", false);
+				if (attachmentType == "underbarrel")
+					(result.data.secMode)
+						? GunItem.extra.putBoolean("secMode", true)
+						: GunItem.extra.putBoolean("secMode", false);
 				else
-					(data.data.sound)
-						? Gun.extra.putString("newSound", data.data.sound)
-						: Gun.extra.putString("newSound", null);
+					(result.data.sound)
+						? GunItem.extra.putString("newSound", result.data.sound)
+						: GunItem.extra.putString("newSound", null);
 			default:
-				if (old) {
-					let oAttachment = Guncraft.getAttachment(
-						GunData.attachment[type][old - 1]);
-					oldData1 = oAttachment.recoilCoefficient / 100;
-					oldData2 = oAttachment.accuracyCoefficient / 100;
+				if (oldAttachmentIndex) {
+					let oldAttachmentData = Guncraft.getAttachmentData(
+						GunData.attachment[attachmentType][oldAttachmentIndex - 1]);
+					oldData1 = oldAttachmentData.recoilCoefficient / 100;
+					oldData2 = oldAttachmentData.accuracyCoefficient / 100;
 				}
-				Gun.extra.putFloat("recoilCoefficient",
-					Gun.extra.getFloat("recoilCoefficient")
-					+ oldData1 - (data.data.recoilCoefficient / 100));
-				Gun.extra.putFloat("accuracyCoefficient",
-					Gun.extra.getFloat("accuracyCoefficient")
-					+ oldData2 - (data.data.accuracyCoefficient / 100));
+				GunItem.extra.putFloat("recoilCoefficient",
+					GunItem.extra.getFloat("recoilCoefficient")
+					+ oldData1 - (result.data.recoilCoefficient / 100));
+				GunItem.extra.putFloat("accuracyCoefficient",
+					GunItem.extra.getFloat("accuracyCoefficient")
+					+ oldData2 - (result.data.accuracyCoefficient / 100));
 				break;
 		}
+
 		let tag = GuncraftUtil.getInventorySlotCompoundTag(this.uid, this.currentSlotIndex);
 		// @ts-ignore
-		Gun.extra.setCompoundTag(tag);
-		player.setInventorySlot(this.currentSlotIndex, Gun.id, 1, Gun.data, Gun.extra);
-		this.modifyAnimation();
+		GunItem.extra.setCompoundTag(tag);
+		player.setInventorySlot(this.currentSlotIndex, GunItem.id, 1, GunItem.data, GunItem.extra);
 	}
 
 	modifyAnimation(): void {
 		let player = this.kexPlayer;
 		player.setSkinID(600);
-		player.setVariant(this.attachmentID);
 	}
 }

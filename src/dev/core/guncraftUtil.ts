@@ -1,20 +1,23 @@
 namespace GuncraftUtil {
-	export function getEntityType(ent: number): string | number {
-		let type = Entity.getType(ent);
-		if (type)
-			return type;
+	export function getEntityType(entityID: number): string | number {
+		let entityType = Entity.getType(entityID);
+		if (entityType)
+			return entityType;
 		else
-			return Entity.getCompoundTag(ent).getString("identifier");
+			return Entity.getCompoundTag(entityID).getString("identifier");
 	}
 
-	export function getInventorySlotCompoundTag(ent: number, id: number): NBT.CompoundTag {
-		let tag = Entity.getCompoundTag(ent).getListTag("Inventory").getCompoundTag(id).getCompoundTag("tag");
+	export function getInventorySlotCompoundTag(
+		entityID: number,
+		slotIndex: number): NBT.CompoundTag {
+		let tag = Entity.getCompoundTag(entityID).getListTag("Inventory")
+			.getCompoundTag(slotIndex).getCompoundTag("tag");
 		tag.remove("$mod");
 		return tag;
 	}
 
-	export function playSound(pp: Vector, name: string): void {
-		Commands.execAt("playsound " + name + " @a ~ ~ ~ 10.0", pp.x, pp.y, pp.z);
+	export function playSound(pos: Vector, name: string): void {
+		Commands.execAt("playsound " + name + " @a ~ ~ ~ 10.0", pos.x, pos.y, pos.z);
 	}
 
 	export function delay(f: (parm?: any) => void, timeout: number, param?: any): void {

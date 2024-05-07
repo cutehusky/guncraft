@@ -26,12 +26,14 @@ Callback.addCallback("ServerPlayerTick", function (player: number, isPlayerDead:
 Callback.addCallback("ServerPlayerTick", function (player: number, isPlayerDead: boolean): void {
 	if (!PlayerContainer.hasOwnProperty(player))
 		return;
+
 	let playerController = PlayerContainer[player];
 	if (isPlayerDead) {
 		playerController.destructor();
 		delete (PlayerContainer[player]);
 		return;
 	}
+
 	playerController.updatePlayerAnimation();
 	if (playerController.timeout > 0) {
 		playerController.timeout--;
@@ -49,7 +51,7 @@ Callback.addCallback("ServerPlayerTick", function (player: number, isPlayerDead:
 		return;
 	}
 
-	let gunData = playerController.GunData;
+	let gunData = playerController.gunData;
 
 	if (playerController.actionState == ActionState.semiAutoShooting) {
 		playerController.shot();
@@ -95,7 +97,8 @@ Callback.addCallback("ItemUseNoTarget", function (item: ItemInstance, player: nu
 	let playerController = PlayerContainer[player];
 	if (playerController.actionState != ActionState.none)
 		return;
-	if (!item.data || playerController.currentBulletCount <= 0
+	if (!item.data
+		|| playerController.currentBulletCount <= 0
 		|| !playerController.mode) {
 		if (playerController.emptySound
 			&& playerController.mode) {
@@ -117,45 +120,53 @@ Callback.addCallback("ItemUseNoTarget", function (item: ItemInstance, player: nu
 });
 
 //reload magazine
-Callback.addCallback("ItemUsingComplete", function (magItem: ItemInstance, puid: number): void {
-	let player = new PlayerActor(puid),
+Callback.addCallback("ItemUsingComplete", function (magItem: ItemInstance, playerID: number): void {
+	let player = new PlayerActor(playerID),
 		//magazine slot
-		magSlot = player.getSelectedSlot(),
+		magSlotIndex = player.getSelectedSlot(),
 		//bullet slot
-		bulletSlot = magSlot + 1,
-		bulletItem = player.getInventorySlot(bulletSlot),
+		bulletSlotIndex = magSlotIndex + 1,
+		bulletItem = player.getInventorySlot(bulletSlotIndex),
 		bulletId = IDRegistry.getNameByID(bulletItem.id),
-		magData = Guncraft.getMag(IDRegistry.getNameByID(magItem.id)),
-		bulletData = Guncraft.getBullet(bulletId);
+		magData = Guncraft.getMagData(IDRegistry.getNameByID(magItem.id)),
+		bulletData = Guncraft.getBulletData(bulletId);
 	if (magData && bulletData) {
 		for (let i = 0; i < magData.bulletName.length; i++) {
 			if (bulletData.parent == magData.bulletName[i]) {
 				let magCurBulletCount = magItem.extra.getInt("currentBulletCount", 0),
 					magMaxBulletCount = magData.bulletMaxCount[i],
-					b = magMaxBulletCount - magCurBulletCount,
-					c = bulletItem.count - b;
-				if (c < 0)
-					b += c;
+					emptyCount = magMaxBulletCount - magCurBulletCount;
+
+				if (emptyCount == 0)
+					continue;
+
+				let newBulletCount = bulletItem.count - emptyCount;
+				if (newBulletCount < 0)
+					emptyCount += newBulletCount;
+
 				let magArr = magCurBulletCount
-					? GuncraftUtil.getInventorySlotCompoundTag(puid, magSlot)
+					? GuncraftUtil.getInventorySlotCompoundTag(playerID, magSlotIndex)
 						.getListTag("magArr")
 					: new NBT.ListTag();
-				for (let i = 0; i < b; i++)
+				for (let i = 0; i < emptyCount; i++)
 					magArr.putString(magCurBulletCount + i, bulletId);
+
 				magItem.extra.putString("bulletParent", bulletData.parent);
 				magItem.extra.putInt("maxBulletCount", magMaxBulletCount);
-				magItem.extra.putInt("currentBulletCount", magCurBulletCount + b);
+				magItem.extra.putInt("currentBulletCount", magCurBulletCount + emptyCount);
 				let tag = new NBT.CompoundTag();
 				tag.putListTag("magArr", magArr);
 				// @ts-ignore
 				magItem.extra.setCompoundTag(tag);
 				let scale = Math.round(
-					((magMaxBulletCount - (magCurBulletCount + b))
+					((magMaxBulletCount - (magCurBulletCount + emptyCount))
 						/ magMaxBulletCount * 100) + 1);
-				(c > 0)
-					? player.setInventorySlot(bulletSlot, bulletItem.id, c, 0, null)
-					: player.setInventorySlot(bulletSlot, 0, 0, 0, null);
-				player.setInventorySlot(magSlot, magItem.id, 1, scale, magItem.extra);
+				player.setInventorySlot(magSlotIndex, magItem.id, 1, scale, magItem.extra);
+
+				if (newBulletCount > 0)
+					player.setInventorySlot(bulletSlotIndex, bulletItem.id, newBulletCount, 0, null)
+				else
+					player.setInventorySlot(bulletSlotIndex, 0, 0, 0, null);
 				break;
 			}
 		}

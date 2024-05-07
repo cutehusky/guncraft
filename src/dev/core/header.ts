@@ -6,6 +6,11 @@ type ItemManagerContainer = {
 	[key: number]: PlayerItemManager
 }
 
+let AnimationComponet = null
+ModAPI.addAPICallback("AnimationComponet", function (api) {
+	AnimationComponet = api;
+});
+
 let Damage = {},
 	Explodes = {},
 	Fires = {},
@@ -16,7 +21,7 @@ let Damage = {},
 	PlayerContainer: ControllerContainer = {};
 
 // id: [brokem probability, broken reduce]
-const blockHitData = {
+const BlockHitData = {
 	20: [0.9, 0.7],
 	64: [0.2, 0.1],
 	241: [0.9, 0.7],
@@ -79,7 +84,7 @@ const blockHitData = {
 	77: [0.9, 0.6]
 }
 
-const humanoidData = [44, 116, 32,
+const HumanoidData = [44, 116, 32,
 	48, 45, 118,
 	57, 115, 15,
 	46, 34, 63,

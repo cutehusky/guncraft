@@ -1,29 +1,30 @@
 class PlayerItemManager {
 	uid: number;
-	slot: number;
-	item: ItemInstance;
+	currentSlotIndex: number;
+	currentItem: ItemInstance;
 	useDuration: number;
 	constructor(uid: number) {
 		this.uid = uid;
-		this.slot = 0;
-		this.item = { id: 0, data: 0, count: 0 };
+		this.currentSlotIndex = 0;
+		this.currentItem = { id: 0, data: 0, count: 0 };
 	}
 
 	check(): void {
 		let player = new PlayerActor(this.uid),
-			slot = player.getSelectedSlot(),
-			item = player.getInventorySlot(slot),
+			currentSlotIndex = player.getSelectedSlot(),
+			currentItem = player.getInventorySlot(currentSlotIndex),
 			useDuration = player.getItemUseDuration();
 		if (this.useDuration && !useDuration)
 			this.released();
-		if (slot != this.slot || item.id != this.item.id
-			|| (item.extra && this.item.extra
-				&& item.extra.getInt("uuid", 0)
-				!= this.item.extra.getInt("uuid", 0)))
-			item = this.changed(item, slot, player);
+		if (currentSlotIndex != this.currentSlotIndex
+			|| currentItem.id != this.currentItem.id
+			|| (currentItem.extra && this.currentItem.extra
+				&& currentItem.extra.getInt("uuid", 0)
+				!= this.currentItem.extra.getInt("uuid", 0)))
+			currentItem = this.changed(currentItem, currentSlotIndex, player);
 		this.useDuration = useDuration;
-		this.slot = slot;
-		this.item = item;
+		this.currentSlotIndex = currentSlotIndex;
+		this.currentItem = currentItem;
 	}
 
 	released(): void {
@@ -39,23 +40,23 @@ class PlayerItemManager {
 		}
 	}
 
-	changed(item: ItemInstance, slot: number, player: PlayerActor): ItemInstance {
-		let newGunData = Guncraft.getGun(IDRegistry.getNameByID(item.id)),
-			oldGunData = Guncraft.getGun(IDRegistry.getNameByID(this.item.id));
+	changed(currentItem: ItemInstance, currentSlotIndex: number, player: PlayerActor): ItemInstance {
+		let newGunData = Guncraft.getGunData(IDRegistry.getNameByID(currentItem.id)),
+			oldGunData = Guncraft.getGunData(IDRegistry.getNameByID(this.currentItem.id));
 		if (oldGunData) {
 			PlayerContainer[this.uid].destructor();
 			delete (PlayerContainer[this.uid]);
 		}
 		if (newGunData) {
-			if (!item.extra.getInt("uuid", 0)) {
-				let tag = GuncraftUtil.getInventorySlotCompoundTag(this.uid, slot);
+			if (!currentItem.extra.getInt("uuid", 0)) {
+				let tag = GuncraftUtil.getInventorySlotCompoundTag(this.uid, currentSlotIndex);
 				// @ts-ignore
-				item.extra.setCompoundTag(tag);
-				item.extra.putInt("uuid", Math.floor(Math.random() * 10000000));
-				player.setInventorySlot(slot, item.id, item.count, item.data, item.extra);
+				currentItem.extra.setCompoundTag(tag);
+				currentItem.extra.putInt("uuid", Math.floor(Math.random() * 10000000));
+				player.setInventorySlot(currentSlotIndex, currentItem.id, currentItem.count, currentItem.data, currentItem.extra);
 			}
-			PlayerContainer[this.uid] = new PlayerActionController(this.uid, item, newGunData, slot);
+			PlayerContainer[this.uid] = new PlayerActionController(this.uid, currentItem, newGunData, currentSlotIndex);
 		}
-		return item;
+		return currentItem;
 	}
 }
