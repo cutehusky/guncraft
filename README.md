@@ -11,6 +11,15 @@ A high quality gun mod for minecraft innercore
 
 ## Demo
 
+Reloading magazine
+
+Reloading
+
+Modifing attachment
+
+Aim 
+
+Fire
 
 ## Thank
 
